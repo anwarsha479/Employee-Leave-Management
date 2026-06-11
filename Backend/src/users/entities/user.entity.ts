@@ -1,0 +1,63 @@
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn,} from 'typeorm';
+import { Role } from '../enums/role.enum';
+
+@Entity('users')
+export class User {
+
+  @PrimaryGeneratedColumn('uuid')
+  id!: string;
+
+  @Column({
+    type: 'varchar',
+    length: 255,
+    unique: true,
+  })
+  email!: string;
+
+  @Column({
+    type: 'varchar',
+    length: 255,
+  })
+  password!: string;
+
+  @Column({
+    type: 'enum',
+    enum: Role,
+    default: Role.EMPLOYEE,
+  })
+  role!: Role;
+
+// Allows administrators to deactivate a user
+// without deleting historical records.
+  @Column({
+    default: true,
+  })
+  isActive!: boolean;
+
+  @CreateDateColumn({
+    type: 'timestamp',
+  })
+  createdAt!: Date;
+
+  @UpdateDateColumn({
+    type: 'timestamp',
+  })
+  updatedAt!: Date;
+
+
+//  One-time token used for password reset.
+  @Column({
+    type: 'varchar',
+    length: 255,
+    nullable: true,
+  })
+  resetToken?: string;
+
+ 
+// Expiration time for the reset token.
+  @Column({
+    type: 'timestamp',
+    nullable: true,
+  })
+  resetTokenExpiry?: Date;
+}
