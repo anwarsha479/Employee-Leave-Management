@@ -7,6 +7,8 @@ import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { DepartmentsModule } from './departments/departments.module';
 import { EmployeesModule } from './employees/employees.module';
+import { LeavesModule } from './leaves/leaves.module';
+import { DashboardModule } from './dashboard/dashboard.module';
 
 @Module({
   imports: [
@@ -32,6 +34,8 @@ import { EmployeesModule } from './employees/employees.module';
     AuthModule,
     DepartmentsModule,
     EmployeesModule,
+    LeavesModule,
+    DashboardModule,
   ],
   controllers: [AppController, ],
   providers: [AppService, ],
