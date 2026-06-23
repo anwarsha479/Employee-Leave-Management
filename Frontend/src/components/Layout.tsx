@@ -1,7 +1,6 @@
 import { useState } from "react";
 import type { ReactNode } from "react";
 import { Box } from "@mui/material";
-
 import Sidebar from "./Sidebar";
 import Topbar from "./Topbar";
 
@@ -46,5 +45,4 @@ function Layout({ children }: LayoutProps) {
     </Box>
   );
 }
-
 export default Layout;
