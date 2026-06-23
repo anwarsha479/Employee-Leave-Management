@@ -3,222 +3,139 @@ import {
   ConflictException,
   NotFoundException,
 } from '@nestjs/common';
-
 import { InjectRepository } from '@nestjs/typeorm';
-
-import { Repository, ILike } from 'typeorm';
-
+import { Repository } from 'typeorm';
 import { Employee } from './entities/employee.entity';
 import { Department } from '../departments/entities/department.entity';
-
 import { CreateEmployeeDto } from './dto/create-employee.dto';
 import { UpdateEmployeeDto } from './dto/update-employee.dto';
-
+import { UsersService } from '../users/users.service';
 @Injectable()
 export class EmployeesService {
   constructor(
     @InjectRepository(Employee)
     private readonly employeeRepository: Repository<Employee>,
-
     @InjectRepository(Department)
     private readonly departmentRepository: Repository<Department>,
+    private readonly usersService: UsersService,
   ) {}
-
-  async create(
-    createEmployeeDto: CreateEmployeeDto,
-  ): Promise<Employee> {
-    const existingEmployee =
-      await this.employeeRepository.findOne({
-        where: [
-          {
-            email: createEmployeeDto.email,
-          },
-          {
-            employeeCode:
-              createEmployeeDto.employeeCode,
-          },
-        ],
-      });
-
-    if (existingEmployee) {
-      throw new ConflictException(
-        'Employee already exists',
-      );
-    }
-
-    const department =
-      await this.departmentRepository.findOne({
-        where: {
-          id: createEmployeeDto.departmentId,
-        },
-      });
-
-    if (!department) {
-      throw new NotFoundException(
-        'Department not found',
-      );
-    }
-
-    const employee =
-      this.employeeRepository.create({
-        employeeCode:
-          createEmployeeDto.employeeCode,
-
-        name: createEmployeeDto.name,
-
-        email: createEmployeeDto.email,
-
-        phone: createEmployeeDto.phone,
-
-        designation:
-          createEmployeeDto.designation,
-
-        joiningDate:
-          createEmployeeDto.joiningDate,
-
-        department,
-      });
-
-    return this.employeeRepository.save(
-      employee,
-    );
-  }
-
-  async findAll(
-  page = 1,
-  limit = 10,
-  search?: string,
-  departmentId?: string,
-) {
-  const skip = (page - 1) * limit;
-
-  const query =
-    this.employeeRepository.createQueryBuilder(
-      'employee',
-    );
-
-  query.leftJoinAndSelect(
-    'employee.department',
-    'department',
-  );
-
-  if (search) {
-    query.andWhere(
-      'LOWER(employee.name) LIKE LOWER(:search)',
-      {
-        search: `%${search}%`,
-      },
-    );
-  }
-
-  if (departmentId) {
-    query.andWhere(
-      'department.id = :departmentId',
-      {
-        departmentId,
-      },
-    );
-  }
-
-  query
-    .orderBy(
-      'employee.createdAt',
-      'DESC',
-    )
-    .skip(skip)
-    .take(limit);
-
-  const [data, total] =
-    await query.getManyAndCount();
-
-  return {
-    data,
-    total,
-    page,
-    limit,
-  };
-}
-
-async findOne(id: string): Promise<Employee> {
-  const employee =
-    await this.employeeRepository.findOne({
-      where: { id },
-      relations: {
-        department: true,
-      },
+  async create(createEmployeeDto: CreateEmployeeDto): Promise<Employee> {
+    const email = createEmployeeDto.email.toLowerCase();
+    const existingEmployee = await this.employeeRepository.findOne({
+      where: [{ email }, { employeeCode: createEmployeeDto.employeeCode }],
     });
-
-  if (!employee) {
-    throw new NotFoundException(
-      'Employee not found',
-    );
-  }
-
-  return employee;
-}
-
-async update(
-  id: string,
-  updateEmployeeDto: UpdateEmployeeDto,
-): Promise<Employee> {
-  const employee =
-    await this.findOne(id);
-
-  if (updateEmployeeDto.departmentId) {
-    const department =
-      await this.departmentRepository.findOne({
-        where: {
-          id: updateEmployeeDto.departmentId,
-        },
-      });
-
-    if (!department) {
-      throw new NotFoundException(
-        'Department not found',
+    if (existingEmployee) {
+      throw new ConflictException('Employee already exists');
+    }
+    const existingUser = await this.usersService.findByEmail(email);
+    if (existingUser) {
+      throw new ConflictException(
+        'User account with this email already exists',
       );
     }
-
-    employee.department = department;
+    const department = await this.departmentRepository.findOne({
+      where: { id: createEmployeeDto.departmentId },
+    });
+    if (!department) {
+      throw new NotFoundException('Department not found');
+    }
+    const defaultPassword = 'Password@123';
+    const user = await this.usersService.create({
+      email,
+      password: defaultPassword,
+    });
+    try {
+      const employee = this.employeeRepository.create({
+        employeeCode: createEmployeeDto.employeeCode,
+        name: createEmployeeDto.name,
+        email,
+        phone: createEmployeeDto.phone,
+        designation: createEmployeeDto.designation,
+        joiningDate: createEmployeeDto.joiningDate,
+        department,
+        user,
+      });
+      return await this.employeeRepository.save(employee);
+    } catch (error) {
+      await this.usersService.remove(user.id);
+      throw error;
+    }
   }
-
-  Object.assign(employee, {
-    employeeCode:
-      updateEmployeeDto.employeeCode ??
-      employee.employeeCode,
-
-    name:
-      updateEmployeeDto.name ??
-      employee.name,
-
-    email:
-      updateEmployeeDto.email ??
-      employee.email,
-
-    phone:
-      updateEmployeeDto.phone ??
-      employee.phone,
-
-    designation:
-      updateEmployeeDto.designation ??
-      employee.designation,
-
-    joiningDate:
-      updateEmployeeDto.joiningDate ??
-      employee.joiningDate,
-  });
-
-  return this.employeeRepository.save(
-    employee,
-  );
+  async findAll(page = 1, limit = 10, search?: string, departmentId?: string) {
+    const skip = (page - 1) * limit;
+    const query = this.employeeRepository.createQueryBuilder('employee');
+    query.leftJoinAndSelect('employee.department', 'department');
+    if (search) {
+      query.andWhere('LOWER(employee.name) LIKE LOWER(:search)', {
+        search: `%${search}%`,
+      });
+    }
+    if (departmentId) {
+      query.andWhere('department.id = :departmentId', { departmentId });
+    }
+    query.orderBy('employee.createdAt', 'DESC').skip(skip).take(limit);
+    const [data, total] = await query.getManyAndCount();
+    return { data, total, page, limit };
+  }
+  async findOne(id: string): Promise<Employee> {
+    const employee = await this.employeeRepository.findOne({
+      where: { id },
+      relations: { department: true, user: true },
+    });
+    if (!employee) {
+      throw new NotFoundException('Employee not found');
+    }
+    return employee;
+  }
+  async update(
+    id: string,
+    updateEmployeeDto: UpdateEmployeeDto,
+  ): Promise<Employee> {
+    const employee = await this.findOne(id);
+    const email = updateEmployeeDto.email?.toLowerCase();
+    if (email && email !== employee.email) {
+      const existingEmployee = await this.employeeRepository.findOne({
+        where: { email },
+      });
+      if (existingEmployee) {
+        throw new ConflictException('Email already in use by another employee');
+      }
+      const existingUser = await this.usersService.findByEmail(email);
+      if (
+        existingUser &&
+        (!employee.user || existingUser.id !== employee.user.id)
+      ) {
+        throw new ConflictException('Email already in use by another user');
+      }
+      if (employee.user) {
+        await this.usersService.update(employee.user.id, { email });
+      }
+    }
+    if (updateEmployeeDto.departmentId) {
+      const department = await this.departmentRepository.findOne({
+        where: { id: updateEmployeeDto.departmentId },
+      });
+      if (!department) {
+        throw new NotFoundException('Department not found');
+      }
+      employee.department = department;
+    }
+    Object.assign(employee, {
+      employeeCode: updateEmployeeDto.employeeCode ?? employee.employeeCode,
+      name: updateEmployeeDto.name ?? employee.name,
+      email: email ?? employee.email,
+      phone: updateEmployeeDto.phone ?? employee.phone,
+      designation: updateEmployeeDto.designation ?? employee.designation,
+      joiningDate: updateEmployeeDto.joiningDate ?? employee.joiningDate,
+    });
+    return this.employeeRepository.save(employee);
+  }
+  async remove(id: string): Promise<void> {
+    const employee = await this.findOne(id);
+    const userId = employee.user?.id;
+    await this.employeeRepository.remove(employee);
+    if (userId) {
+      await this.usersService.remove(userId);
+    }
+  }
 }
-
-async remove(id: string): Promise<void> {
-  const employee =
-    await this.findOne(id);
-
-  await this.employeeRepository.remove(
-    employee,
-  );
-}
-}
-

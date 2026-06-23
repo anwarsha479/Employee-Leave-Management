@@ -1,152 +1,112 @@
 import { useState } from "react";
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
+  Button,
+  Box,
+  IconButton,
+  Typography,
+} from "@mui/material";
+import CloseIcon from "@mui/icons-material/Close";
 
 interface LeaveFormProps {
+  open: boolean;
+  onClose: () => void;
   onSubmit: (leave: any) => void;
   employees: any[];
 }
 
-function LeaveForm({
-  onSubmit,
-  employees,
-}: LeaveFormProps) {
-  const [employeeId, setEmployeeId] =
-    useState("");
+function LeaveForm({ open, onClose, onSubmit }: LeaveFormProps) {
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [reason, setReason] = useState("");
 
-  const [startDate, setStartDate] =
-    useState("");
-
-  const [endDate, setEndDate] =
-    useState("");
-
-  const [reason, setReason] =
-    useState("");
-
-  const handleSubmit = (
-    e: React.FormEvent,
-  ) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
     onSubmit({
-      employeeId,
       startDate,
       endDate,
       reason,
     });
 
-    setEmployeeId("");
     setStartDate("");
     setEndDate("");
     setReason("");
+    onClose();
   };
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="card p-4 mb-4"
-    >
-      <h4>Apply Leave</h4>
-
-      <div className="mb-3">
-        <label className="form-label">
-          Employee
-        </label>
-
-        <select
-          className="form-control"
-          value={employeeId}
-          onChange={(e) =>
-            setEmployeeId(
-              e.target.value,
-            )
-          }
-          required
+    <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
+      <DialogTitle sx={{ m: 0, p: 2, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <Typography variant="h6" component="span" sx={{ fontWeight: 750 }}>
+          Apply for Leave
+        </Typography>
+        <IconButton
+          aria-label="close"
+          onClick={onClose}
+          sx={{
+            color: (theme) => theme.palette.grey[500],
+          }}
         >
-          <option value="">
-            Select Employee
-          </option>
+          <CloseIcon />
+        </IconButton>
+      </DialogTitle>
+      <form onSubmit={handleSubmit}>
+        <DialogContent dividers sx={{ p: 3 }}>
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+            <TextField
+              label="Start Date"
+              type="date"
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+              required
+              fullWidth
+              slotProps={{
+                inputLabel: {
+                  shrink: true,
+                },
+              }}
+            />
 
-          {employees.map(
-            (employee) => (
-              <option
-                key={employee.id}
-                value={
-                  employee.id
-                }
-              >
-                {
-                  employee.name
-                }{" "}
-                (
-                {
-                  employee.employeeCode
-                }
-                )
-              </option>
-            ),
-          )}
-        </select>
-      </div>
+            <TextField
+              label="End Date"
+              type="date"
+              value={endDate}
+              onChange={(e) => setEndDate(e.target.value)}
+              required
+              fullWidth
+              slotProps={{
+                inputLabel: {
+                  shrink: true,
+                },
+              }}
+            />
 
-      <div className="mb-3">
-        <label className="form-label">
-          Start Date
-        </label>
-
-        <input
-          type="date"
-          className="form-control"
-          value={startDate}
-          onChange={(e) =>
-            setStartDate(
-              e.target.value,
-            )
-          }
-          required
-        />
-      </div>
-
-      <div className="mb-3">
-        <label className="form-label">
-          End Date
-        </label>
-
-        <input
-          type="date"
-          className="form-control"
-          value={endDate}
-          onChange={(e) =>
-            setEndDate(
-              e.target.value,
-            )
-          }
-          required
-        />
-      </div>
-
-      <div className="mb-3">
-        <label className="form-label">
-          Reason
-        </label>
-
-        <textarea
-          className="form-control"
-          value={reason}
-          onChange={(e) =>
-            setReason(
-              e.target.value,
-            )
-          }
-          required
-        />
-      </div>
-
-      <button
-        type="submit"
-        className="btn btn-primary"
-      >
-        Submit Leave Request
-      </button>
-    </form>
+            <TextField
+              label="Reason for Leave"
+              value={reason}
+              onChange={(e) => setReason(e.target.value)}
+              required
+              fullWidth
+              multiline
+              rows={4}
+            />
+          </Box>
+        </DialogContent>
+        <DialogActions sx={{ p: 2, gap: 1 }}>
+          <Button onClick={onClose} variant="outlined" color="inherit">
+            Cancel
+          </Button>
+          <Button type="submit" variant="contained" color="primary">
+            Submit Leave Request
+          </Button>
+        </DialogActions>
+      </form>
+    </Dialog>
   );
 }
 

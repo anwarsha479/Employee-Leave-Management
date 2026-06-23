@@ -22,9 +22,10 @@ export class AuthService {
   async login(loginDto: LoginDto) {
     const user = await this.userRepository.findOne({
       where: {
-        email: loginDto.email,
+        email: loginDto.email.toLowerCase(),
       },
     });
+    
     if (!user) {
       throw new UnauthorizedException('Invalid credentials');
     }
@@ -49,7 +50,7 @@ export class AuthService {
   async forgotPassword(forgotPasswordDto: ForgotPasswordDto) {
     const user = await this.userRepository.findOne({
       where: {
-        email: forgotPasswordDto.email,
+        email: forgotPasswordDto.email.toLowerCase(),
       },
     });
 

@@ -34,9 +34,6 @@ export class Department {
   })
   updatedAt!: Date;
 
-  @OneToMany(
-  () => Employee,
-  (employee) => employee.department,
-)
-employees!: Employee[];
+  @OneToMany(() => Employee, (employee) => employee.department)
+  employees!: Employee[];
 }

@@ -23,35 +23,29 @@ export class DashboardService {
   ) {}
 
   async getStats() {
-    const totalEmployees =
-      await this.employeeRepository.count();
+    const totalEmployees = await this.employeeRepository.count();
 
-    const totalDepartments =
-      await this.departmentRepository.count();
+    const totalDepartments = await this.departmentRepository.count();
 
-    const totalLeaves =
-      await this.leaveRepository.count();
+    const totalLeaves = await this.leaveRepository.count();
 
-    const pendingLeaves =
-      await this.leaveRepository.count({
-        where: {
-          status: LeaveStatus.PENDING,
-        },
-      });
+    const pendingLeaves = await this.leaveRepository.count({
+      where: {
+        status: LeaveStatus.PENDING,
+      },
+    });
 
-    const approvedLeaves =
-      await this.leaveRepository.count({
-        where: {
-          status: LeaveStatus.APPROVED,
-        },
-      });
+    const approvedLeaves = await this.leaveRepository.count({
+      where: {
+        status: LeaveStatus.APPROVED,
+      },
+    });
 
-    const rejectedLeaves =
-      await this.leaveRepository.count({
-        where: {
-          status: LeaveStatus.REJECTED,
-        },
-      });
+    const rejectedLeaves = await this.leaveRepository.count({
+      where: {
+        status: LeaveStatus.REJECTED,
+      },
+    });
 
     return {
       totalEmployees,

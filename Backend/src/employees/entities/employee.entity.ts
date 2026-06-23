@@ -5,9 +5,11 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   ManyToOne,
+  OneToOne,
   JoinColumn,
 } from 'typeorm';
 import { Department } from '../../departments/entities/department.entity';
+import { User } from '../../users/entities/user.entity';
 
 @Entity('employees')
 export class Employee {
@@ -39,16 +41,21 @@ export class Employee {
   })
   designation!: string;
 
-  @ManyToOne(
-  () => Department,
-  {
+  @ManyToOne(() => Department, {
     nullable: false,
-  },
-)
-@JoinColumn({
-  name: 'departmentId',
-})
-department!: Department;
+  })
+  @JoinColumn({
+    name: 'departmentId',
+  })
+  department!: Department;
+
+  @OneToOne(() => User, {
+    nullable: true,
+  })
+  @JoinColumn({
+    name: 'userId',
+  })
+  user?: User;
 
   @Column({
     type: 'date',

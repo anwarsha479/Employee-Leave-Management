@@ -1,101 +1,101 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from "react";
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
+  Button,
+  Box,
+  IconButton,
+  Typography,
+} from "@mui/material";
+import CloseIcon from "@mui/icons-material/Close";
 
 interface DepartmentFormProps {
-  onSubmit: (
-    name: string,
-    description: string,
-  ) => void;
-
+  open: boolean;
+  onClose: () => void;
+  onSubmit: (name: string, description: string) => void;
   department?: any;
 }
 
 function DepartmentForm({
+  open,
+  onClose,
   onSubmit,
   department,
 }: DepartmentFormProps) {
-  const [name, setName] =
-    useState('');
-
-  const [description, setDescription] =
-    useState('');
+  const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
 
   useEffect(() => {
     if (department) {
-      setName(department.name);
-
-      setDescription(
-        department.description,
-      );
+      setName(department.name || "");
+      setDescription(department.description || "");
+    } else {
+      setName("");
+      setDescription("");
     }
-  }, [department]);
+  }, [department, open]);
 
-  const handleSubmit = (
-    e: React.FormEvent,
-  ) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    onSubmit(
-      name,
-      description,
-    );
+    onSubmit(name, description);
 
-    setName('');
-    setDescription('');
+    setName("");
+    setDescription("");
+    onClose();
   };
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="card p-4 mb-4"
-    >
-      <h4>
-        {department
-          ? 'Edit Department'
-          : 'Create Department'}
-      </h4>
+    <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
+      <DialogTitle sx={{ m: 0, p: 2, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <Typography variant="h6" component="span" sx={{ fontWeight: 750 }}>
+          {department ? "Edit Department Details" : "Create New Department"}
+        </Typography>
+        <IconButton
+          aria-label="close"
+          onClick={onClose}
+          sx={{
+            color: (theme) => theme.palette.grey[500],
+          }}
+        >
+          <CloseIcon />
+        </IconButton>
+      </DialogTitle>
+      <form onSubmit={handleSubmit}>
+        <DialogContent dividers sx={{ p: 3 }}>
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+            <TextField
+              label="Department Name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+              fullWidth
+            />
 
-      <div className="mb-3">
-        <label className="form-label">
-          Department Name
-        </label>
-
-        <input
-          type="text"
-          className="form-control"
-          value={name}
-          onChange={(e) =>
-            setName(e.target.value)
-          }
-          required
-        />
-      </div>
-
-      <div className="mb-3">
-        <label className="form-label">
-          Description
-        </label>
-
-        <textarea
-          className="form-control"
-          value={description}
-          onChange={(e) =>
-            setDescription(
-              e.target.value,
-            )
-          }
-          required
-        />
-      </div>
-
-      <button
-        type="submit"
-        className="btn btn-primary"
-      >
-        {department
-          ? 'Update Department'
-          : 'Save Department'}
-      </button>
-    </form>
+            <TextField
+              label="Description"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              required
+              fullWidth
+              multiline
+              rows={4}
+            />
+          </Box>
+        </DialogContent>
+        <DialogActions sx={{ p: 2, gap: 1 }}>
+          <Button onClick={onClose} variant="outlined" color="inherit">
+            Cancel
+          </Button>
+          <Button type="submit" variant="contained" color="primary">
+            {department ? "Update Department" : "Save Department"}
+          </Button>
+        </DialogActions>
+      </form>
+    </Dialog>
   );
 }
 

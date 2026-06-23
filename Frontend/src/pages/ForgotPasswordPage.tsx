@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate, Link as RouterLink } from "react-router-dom";
-import { login, getProfile } from "../services/auth.service";
+import { forgotPassword } from "../services/auth.service";
 import {
   Box,
   Card,
@@ -8,39 +8,24 @@ import {
   Typography,
   TextField,
   Button,
-  IconButton,
-  InputAdornment,
   Container,
   Link,
   Avatar,
 } from "@mui/material";
-import Visibility from "@mui/icons-material/Visibility";
-import VisibilityOff from "@mui/icons-material/VisibilityOff";
-import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
+import HelpIcon from "@mui/icons-material/Help";
 
-function LoginPage() {
+function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
-  const handleLogin = async () => {
+  const handleSubmit = async () => {
     try {
-      const response = await login(email, password);
-      const token = response.data.accessToken;
-      localStorage.setItem("token", token);
-      const profile = await getProfile();
-      localStorage.setItem("email", profile.data.email);
-      localStorage.setItem("role", profile.data.role);
-
-      navigate("/dashboard");
+      const response = await forgotPassword(email);
+      alert(`Reset Token: ${response.data.resetToken}`);
+      navigate("/reset-password");
     } catch (error) {
-      alert("Invalid credentials");
+      alert("Something went wrong");
     }
-  };
-
-  const handleClickShowPassword = () => {
-    setShowPassword(!showPassword);
   };
 
   return (
@@ -67,13 +52,13 @@ function LoginPage() {
           <Avatar
             sx={{
               m: 1,
-              bgcolor: "primary.main",
+              bgcolor: "secondary.main",
               width: 56,
               height: 56,
-              boxShadow: "0 0 20px rgba(99, 102, 241, 0.5)",
+              boxShadow: "0 0 20px rgba(16, 185, 129, 0.5)",
             }}
           >
-            <LockOutlinedIcon sx={{ fontSize: 32 }} />
+            <HelpIcon sx={{ fontSize: 32 }} />
           </Avatar>
           <Typography
             component="h1"
@@ -90,7 +75,7 @@ function LoginPage() {
             Leave Management System
           </Typography>
           <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-            Sign in to access your portal
+            Recover your account password
           </Typography>
         </Box>
 
@@ -107,9 +92,12 @@ function LoginPage() {
             <Typography
               component="h2"
               variant="h5"
-              sx={{ fontWeight: 600, mb: 3 }}
+              sx={{ fontWeight: 600, mb: 2 }}
             >
-              Login
+              Forgot Password
+            </Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+              Enter your email address and we will provide a reset token.
             </Typography>
 
             <Box component="div">
@@ -124,42 +112,14 @@ function LoginPage() {
                 autoFocus
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                sx={{ mb: 2 }}
-              />
-              <TextField
-                margin="normal"
-                required
-                fullWidth
-                name="password"
-                label="Password"
-                type={showPassword ? "text" : "password"}
-                id="password"
-                autoComplete="current-password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
                 sx={{ mb: 3 }}
-                slotProps={{
-                  input: {
-                    endAdornment: (
-                      <InputAdornment position="end">
-                        <IconButton
-                          aria-label="toggle password visibility"
-                          onClick={handleClickShowPassword}
-                          edge="end"
-                        >
-                          {showPassword ? <VisibilityOff /> : <Visibility />}
-                        </IconButton>
-                      </InputAdornment>
-                    ),
-                  },
-                }}
               />
               <Button
                 type="submit"
                 fullWidth
                 variant="contained"
                 size="large"
-                onClick={handleLogin}
+                onClick={handleSubmit}
                 sx={{
                   py: 1.5,
                   fontSize: "1rem",
@@ -170,18 +130,27 @@ function LoginPage() {
                   },
                 }}
               >
-                Sign In
+                Send Reset Link
               </Button>
 
-              <Box sx={{ mt: 3, textAlign: "center" }}>
+              <Box sx={{ mt: 3, display: "flex", justifyContent: "space-between" }}>
                 <Link
                   component={RouterLink}
-                  to="/forgot-password"
+                  to="/"
                   variant="body2"
                   color="primary.light"
                   sx={{ textDecoration: "none", "&:hover": { textDecoration: "underline" } }}
                 >
-                  Forgot Password?
+                  Back to Login
+                </Link>
+                <Link
+                  component={RouterLink}
+                  to="/reset-password"
+                  variant="body2"
+                  color="secondary.light"
+                  sx={{ textDecoration: "none", "&:hover": { textDecoration: "underline" } }}
+                >
+                  Have a token? Reset
                 </Link>
               </Box>
             </Box>
@@ -192,4 +161,4 @@ function LoginPage() {
   );
 }
 
-export default LoginPage;
+export default ForgotPasswordPage;

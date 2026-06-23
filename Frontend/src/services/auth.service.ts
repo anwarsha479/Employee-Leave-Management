@@ -6,3 +6,29 @@ export const login = (email: string, password: string) => {
     password,
   });
 };
+export const getProfile = () => {
+  return api.get('/auth/profile');
+};
+export const forgotPassword = (
+  email: string,
+) => {
+  return api.post(
+    "/auth/forgot-password",
+    {
+      email,
+    },
+  );
+};
+
+export const resetPassword = (
+  token: string,
+  password: string,
+) => {
+  return api.post(
+    "/auth/reset-password",
+    {
+      token,
+      password,
+    },
+  );
+};

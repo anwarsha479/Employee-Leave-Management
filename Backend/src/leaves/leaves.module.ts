@@ -8,12 +8,7 @@ import { Leave } from './entities/leave.entity';
 import { Employee } from '../employees/entities/employee.entity';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([
-      Leave,
-      Employee,
-    ]),
-  ],
+  imports: [TypeOrmModule.forFeature([Leave, Employee])],
   controllers: [LeavesController],
   providers: [LeavesService],
 })

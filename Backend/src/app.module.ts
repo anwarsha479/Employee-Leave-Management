@@ -37,7 +37,7 @@ import { DashboardModule } from './dashboard/dashboard.module';
     LeavesModule,
     DashboardModule,
   ],
-  controllers: [AppController, ],
-  providers: [AppService, ],
+  controllers: [AppController],
+  providers: [AppService],
 })
 export class AppModule {}

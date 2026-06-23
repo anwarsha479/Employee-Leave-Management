@@ -5,68 +5,95 @@ import {
   Get,
   Param,
   Query,
+  UseGuards,
+  Req,
 } from '@nestjs/common';
 
-import { LeavesService } from './leaves.service';
+import { Request } from 'express';
 
+import { LeavesService } from './leaves.service';
 import { CreateLeaveDto } from './dto/create-leave.dto';
 import { LeaveStatus } from './enums/leave-status.enum';
 
-@Controller('leaves')
-export class LeavesController {
-  constructor(
-    private readonly leavesService: LeavesService,
-  ) {}
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { Roles } from '../auth/decorators/roles.decorator';
+import { Role } from '../users/enums/role.enum';
 
+@Controller('leaves')
+@UseGuards(JwtAuthGuard)
+export class LeavesController {
+  constructor(private readonly leavesService: LeavesService) {}
+
+  // Employee can apply leave
   @Post()
   create(
     @Body()
     createLeaveDto: CreateLeaveDto,
+
+    @Req()
+    req: Request & {
+      user: {
+        userId: string;
+        email: string;
+        role: string;
+      };
+    },
   ) {
-    return this.leavesService.create(
-      createLeaveDto,
-    );
+    return this.leavesService.create(createLeaveDto, req.user.userId);
   }
 
- @Get()
+  // Admin can view all leaves
+@Get()
 findAll(
+  @Req() req,
   @Query('page') page?: number,
   @Query('limit') limit?: number,
-  @Query('search') search?: string,
-  @Query('status') status?: string,
-  @Query('employeeId') employeeId?: string,
 ) {
+  const role = req.user.role;
+  const userId = req.user.userId;
+
   return this.leavesService.findAll(
     page,
     limit,
-    search,
-    status,
-    employeeId,
+    undefined,
+    undefined,
+    undefined,
+    role,
+    userId,
   );
 }
 
-@Get(':id')
-findOne(@Param('id') id: string) {
-  return this.leavesService.findOne(id);
-}
+  // Admin can view leave details
+  @Get(':id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  findOne(
+    @Param('id')
+    id: string,
+  ) {
+    return this.leavesService.findOne(id);
+  }
 
-@Post(':id/approve')
-approve(
-  @Param('id') id: string,
-) {
-  return this.leavesService.updateStatus(
-    id,
-    LeaveStatus.APPROVED,
-  );
-}
+  // Admin only
+  @Post(':id/approve')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  approve(
+    @Param('id')
+    id: string,
+  ) {
+    return this.leavesService.updateStatus(id, LeaveStatus.APPROVED);
+  }
 
-@Post(':id/reject')
-reject(
-  @Param('id') id: string,
-) {
-  return this.leavesService.updateStatus(
-    id,
-    LeaveStatus.REJECTED,
-  );
-}
+  // Admin only
+  @Post(':id/reject')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  reject(
+    @Param('id')
+    id: string,
+  ) {
+    return this.leavesService.updateStatus(id, LeaveStatus.REJECTED);
+  }
 }

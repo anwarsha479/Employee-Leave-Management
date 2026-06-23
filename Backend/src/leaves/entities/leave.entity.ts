@@ -37,12 +37,9 @@ export class Leave {
   })
   status!: LeaveStatus;
 
-  @ManyToOne(
-    () => Employee,
-    {
-      nullable: false,
-    },
-  )
+  @ManyToOne(() => Employee, {
+    nullable: false,
+  })
   @JoinColumn({
     name: 'employeeId',
   })

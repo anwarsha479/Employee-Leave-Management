@@ -5,9 +5,7 @@ import { DepartmentsService } from './departments.service';
 import { Department } from './entities/department.entity';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([Department]),
-  ],
+  imports: [TypeOrmModule.forFeature([Department])],
   controllers: [DepartmentsController],
   providers: [DepartmentsService],
 })

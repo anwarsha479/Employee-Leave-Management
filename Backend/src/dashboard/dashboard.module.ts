@@ -9,13 +9,7 @@ import { Department } from '../departments/entities/department.entity';
 import { Leave } from '../leaves/entities/leave.entity';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([
-      Employee,
-      Department,
-      Leave,
-    ]),
-  ],
+  imports: [TypeOrmModule.forFeature([Employee, Department, Leave])],
   controllers: [DashboardController],
   providers: [DashboardService],
 })

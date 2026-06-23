@@ -5,13 +5,11 @@ import {
   IsString,
   IsUUID,
   MaxLength,
+  IsOptional,
 } from 'class-validator';
 
 export class CreateLeaveDto {
-  @ApiProperty({
-    example: '7dfdb97d-2f17-4272-bf47-ae469171b58f',
-    description: 'Employee ID',
-  })
+  @IsOptional()
   @IsUUID()
   employeeId!: string;
 

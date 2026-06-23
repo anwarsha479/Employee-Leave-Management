@@ -1,7 +1,4 @@
-import {
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 
 import { InjectRepository } from '@nestjs/typeorm';
 
@@ -25,45 +22,58 @@ export class LeavesService {
 
   async create(
     createLeaveDto: CreateLeaveDto,
+    userId?: string,
   ): Promise<Leave> {
-    const employee =
-      await this.employeeRepository.findOne({
+    let employee: Employee | null = null;
+
+    // Admin case
+    if (createLeaveDto.employeeId) {
+      employee = await this.employeeRepository.findOne({
         where: {
           id: createLeaveDto.employeeId,
         },
       });
-
-    if (!employee) {
-      throw new NotFoundException(
-        'Employee not found',
-      );
+    }
+    // Employee case
+    else if (userId) {
+      employee = await this.employeeRepository.findOne({
+        where: {
+          user: {
+            id: userId,
+          },
+        },
+        relations: {
+          user: true,
+        },
+      });
     }
 
-    const leave =
-      this.leaveRepository.create({
-        startDate:
-          createLeaveDto.startDate,
+    if (!employee) {
+      throw new NotFoundException('Employee not found');
+    }
 
-        endDate:
-          createLeaveDto.endDate,
+    const leave = this.leaveRepository.create({
+      startDate: createLeaveDto.startDate,
 
-        reason:
-          createLeaveDto.reason,
+      endDate: createLeaveDto.endDate,
 
-        employee,
-      });
+      reason: createLeaveDto.reason,
 
-    return this.leaveRepository.save(
-      leave,
-    );
+      employee,
+    });
+
+    return this.leaveRepository.save(leave);
   }
 
-  async findAll(
+
+async findAll(
   page = 1,
   limit = 10,
   search?: string,
   status?: string,
   employeeId?: string,
+  role?: string,
+  userId?: string,
 ) {
   const skip = (page - 1) * limit;
 
@@ -75,6 +85,11 @@ export class LeavesService {
   query.leftJoinAndSelect(
     'leave.employee',
     'employee',
+  );
+
+  query.leftJoinAndSelect(
+    'employee.user',
+    'user',
   );
 
   if (search) {
@@ -104,6 +119,19 @@ export class LeavesService {
     );
   }
 
+  // Employee can only see their own leaves
+  if (
+    role === 'EMPLOYEE' &&
+    userId
+  ) {
+    query.andWhere(
+      'user.id = :userId',
+      {
+        userId,
+      },
+    );
+  }
+
   query
     .orderBy(
       'leave.createdAt',
@@ -123,35 +151,29 @@ export class LeavesService {
   };
 }
 
-async findOne(id: string): Promise<Leave> {
-  const leave =
-    await this.leaveRepository.findOne({
-      where: { id },
+
+  async findOne(id: string): Promise<Leave> {
+    const leave = await this.leaveRepository.findOne({
+      where: {
+        id,
+      },
       relations: {
         employee: true,
       },
     });
 
-  if (!leave) {
-    throw new NotFoundException(
-      'Leave not found',
-    );
+    if (!leave) {
+      throw new NotFoundException('Leave not found');
+    }
+
+    return leave;
   }
 
-  return leave;
-}
+  async updateStatus(id: string, status: LeaveStatus): Promise<Leave> {
+    const leave = await this.findOne(id);
 
-async updateStatus(
-  id: string,
-  status: LeaveStatus,
-): Promise<Leave> {
-  const leave =
-    await this.findOne(id);
+    leave.status = status;
 
-  leave.status = status;
-
-  return this.leaveRepository.save(
-    leave,
-  );
-}
+    return this.leaveRepository.save(leave);
+  }
 }

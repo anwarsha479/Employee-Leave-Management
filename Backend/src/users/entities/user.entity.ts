@@ -1,9 +1,14 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn,} from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 import { Role } from '../enums/role.enum';
 
 @Entity('users')
 export class User {
-
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
@@ -27,8 +32,8 @@ export class User {
   })
   role!: Role;
 
-// Allows administrators to deactivate a user
-// without deleting historical records.
+  // Allows administrators to deactivate a user
+  // without deleting historical records.
   @Column({
     default: true,
   })
@@ -44,8 +49,7 @@ export class User {
   })
   updatedAt!: Date;
 
-
-//  One-time token used for password reset.
+  //  One-time token used for password reset.
   @Column({
     type: 'varchar',
     length: 255,
@@ -53,8 +57,7 @@ export class User {
   })
   resetToken?: string;
 
- 
-// Expiration time for the reset token.
+  // Expiration time for the reset token.
   @Column({
     type: 'timestamp',
     nullable: true,

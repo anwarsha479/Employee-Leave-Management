@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate, Link as RouterLink } from "react-router-dom";
-import { login, getProfile } from "../services/auth.service";
+import { resetPassword } from "../services/auth.service";
 import {
   Box,
   Card,
@@ -16,26 +16,21 @@ import {
 } from "@mui/material";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
-import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
+import LockResetIcon from "@mui/icons-material/LockReset";
 
-function LoginPage() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+function ResetPasswordPage() {
+  const [resetToken, setResetToken] = useState("");
+  const [newPassword, setNewPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
-  const handleLogin = async () => {
+  const handleSubmit = async () => {
     try {
-      const response = await login(email, password);
-      const token = response.data.accessToken;
-      localStorage.setItem("token", token);
-      const profile = await getProfile();
-      localStorage.setItem("email", profile.data.email);
-      localStorage.setItem("role", profile.data.role);
-
-      navigate("/dashboard");
+      await resetPassword(resetToken, newPassword);
+      alert("Password reset successfully");
+      navigate("/");
     } catch (error) {
-      alert("Invalid credentials");
+      alert("Invalid token");
     }
   };
 
@@ -73,7 +68,7 @@ function LoginPage() {
               boxShadow: "0 0 20px rgba(99, 102, 241, 0.5)",
             }}
           >
-            <LockOutlinedIcon sx={{ fontSize: 32 }} />
+            <LockResetIcon sx={{ fontSize: 32 }} />
           </Avatar>
           <Typography
             component="h1"
@@ -90,7 +85,7 @@ function LoginPage() {
             Leave Management System
           </Typography>
           <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-            Sign in to access your portal
+            Set your new portal password
           </Typography>
         </Box>
 
@@ -109,7 +104,7 @@ function LoginPage() {
               variant="h5"
               sx={{ fontWeight: 600, mb: 3 }}
             >
-              Login
+              Reset Password
             </Typography>
 
             <Box component="div">
@@ -117,26 +112,23 @@ function LoginPage() {
                 margin="normal"
                 required
                 fullWidth
-                id="email"
-                label="Email Address"
-                name="email"
-                autoComplete="email"
-                autoFocus
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                id="resetToken"
+                label="Reset Token"
+                name="resetToken"
+                value={resetToken}
+                onChange={(e) => setResetToken(e.target.value)}
                 sx={{ mb: 2 }}
               />
               <TextField
                 margin="normal"
                 required
                 fullWidth
-                name="password"
-                label="Password"
+                name="newPassword"
+                label="New Password"
                 type={showPassword ? "text" : "password"}
-                id="password"
-                autoComplete="current-password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                id="newPassword"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
                 sx={{ mb: 3 }}
                 slotProps={{
                   input: {
@@ -159,7 +151,7 @@ function LoginPage() {
                 fullWidth
                 variant="contained"
                 size="large"
-                onClick={handleLogin}
+                onClick={handleSubmit}
                 sx={{
                   py: 1.5,
                   fontSize: "1rem",
@@ -170,18 +162,18 @@ function LoginPage() {
                   },
                 }}
               >
-                Sign In
+                Reset Password
               </Button>
 
               <Box sx={{ mt: 3, textAlign: "center" }}>
                 <Link
                   component={RouterLink}
-                  to="/forgot-password"
+                  to="/"
                   variant="body2"
                   color="primary.light"
                   sx={{ textDecoration: "none", "&:hover": { textDecoration: "underline" } }}
                 >
-                  Forgot Password?
+                  Back to Login
                 </Link>
               </Box>
             </Box>
@@ -192,4 +184,4 @@ function LoginPage() {
   );
 }
 
-export default LoginPage;
+export default ResetPasswordPage;

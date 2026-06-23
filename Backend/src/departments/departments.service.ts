@@ -1,7 +1,4 @@
-import {
-  Injectable,
-  ConflictException,
-} from '@nestjs/common';
+import { Injectable, ConflictException } from '@nestjs/common';
 
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, ILike } from 'typeorm';
@@ -18,47 +15,32 @@ export class DepartmentsService {
     private readonly departmentRepository: Repository<Department>,
   ) {}
 
-  async create(
-    createDepartmentDto: CreateDepartmentDto,
-  ): Promise<Department> {
-    const existingDepartment =
-      await this.departmentRepository.findOne({
-        where: {
-          name: createDepartmentDto.name,
-        },
-      });
+  async create(createDepartmentDto: CreateDepartmentDto): Promise<Department> {
+    const existingDepartment = await this.departmentRepository.findOne({
+      where: {
+        name: createDepartmentDto.name,
+      },
+    });
 
     if (existingDepartment) {
-      throw new ConflictException(
-        'Department already exists',
-      );
+      throw new ConflictException('Department already exists');
     }
 
-    const department =
-      this.departmentRepository.create(
-        createDepartmentDto,
-      );
+    const department = this.departmentRepository.create(createDepartmentDto);
 
-    return this.departmentRepository.save(
-      department,
-    );
+    return this.departmentRepository.save(department);
   }
 
-  async findAll(
-  page = 1,
-  limit = 10,
-  search?: string,
-) {
-  const skip = (page - 1) * limit;
+  async findAll(page = 1, limit = 10, search?: string) {
+    const skip = (page - 1) * limit;
 
-  const where = search
-    ? {
-        name: ILike(`%${search}%`),
-      }
-    : {};
+    const where = search
+      ? {
+          name: ILike(`%${search}%`),
+        }
+      : {};
 
-  const [data, total] =
-    await this.departmentRepository.findAndCount({
+    const [data, total] = await this.departmentRepository.findAndCount({
       where,
       skip,
       take: limit,
@@ -67,50 +49,39 @@ export class DepartmentsService {
       },
     });
 
-  return {
-    data,
-    total,
-    page,
-    limit,
-  };
-}
+    return {
+      data,
+      total,
+      page,
+      limit,
+    };
+  }
 
-async findOne(id: string): Promise<Department> {
-  const department =
-    await this.departmentRepository.findOne({
+  async findOne(id: string): Promise<Department> {
+    const department = await this.departmentRepository.findOne({
       where: { id },
     });
 
-  if (!department) {
-    throw new NotFoundException(
-      'Department not found',
-    );
+    if (!department) {
+      throw new NotFoundException('Department not found');
+    }
+    return department;
   }
-  return department;
-}
 
-async update(
-  id: string,
-  updateDepartmentDto: UpdateDepartmentDto,
-): Promise<Department> {
-  const department = await this.findOne(id);
+  async update(
+    id: string,
+    updateDepartmentDto: UpdateDepartmentDto,
+  ): Promise<Department> {
+    const department = await this.findOne(id);
 
-  Object.assign(
-    department,
-    updateDepartmentDto,
-  );
+    Object.assign(department, updateDepartmentDto);
 
-  return this.departmentRepository.save(
-    department,
-  );
-}
+    return this.departmentRepository.save(department);
+  }
 
+  async remove(id: string): Promise<void> {
+    const department = await this.findOne(id);
 
-async remove(id: string): Promise<void> {
-  const department = await this.findOne(id);
-
-  await this.departmentRepository.remove(
-    department,
-  );
-}
+    await this.departmentRepository.remove(department);
+  }
 }

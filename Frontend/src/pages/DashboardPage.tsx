@@ -1,11 +1,15 @@
-import { useEffect, useState } from 'react';
-
+import { useEffect, useState } from "react";
 import {
-  getDashboardStats,
-} from '../services/dashboard.service';
+  Box,
+  Typography,
+  Card,
+  CardContent,
+  Grid,
+  CircularProgress,
+} from "@mui/material";
 
-import Layout from '../components/Layout';
-import '../styles/dashboard.css';
+import { getDashboardStats } from "../services/dashboard.service";
+import Layout from "../components/Layout";
 
 interface DashboardStats {
   totalEmployees: number;
@@ -17,15 +21,12 @@ interface DashboardStats {
 }
 
 function DashboardPage() {
-  const [stats, setStats] =
-    useState<DashboardStats | null>(null);
+  const [stats, setStats] = useState<DashboardStats | null>(null);
 
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const response =
-          await getDashboardStats();
-
+        const response = await getDashboardStats();
         setStats(response.data);
       } catch (error) {
         console.error(error);
@@ -38,172 +39,78 @@ function DashboardPage() {
   if (!stats) {
     return (
       <Layout>
-        <h3>Loading...</h3>
+        <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "60vh" }}>
+          <CircularProgress />
+        </Box>
       </Layout>
     );
   }
 
+  const statItems = [
+    { label: "Total Employees", value: stats.totalEmployees, color: "#6366f1" },
+    { label: "Total Departments", value: stats.totalDepartments, color: "#a855f7" },
+    { label: "Total Leaves", value: stats.totalLeaves, color: "#3b82f6" },
+    { label: "Pending Leaves", value: stats.pendingLeaves, color: "#ff9800" },
+    { label: "Approved Leaves", value: stats.approvedLeaves, color: "#10b981" },
+    { label: "Rejected Leaves", value: stats.rejectedLeaves, color: "#ef4444" },
+  ];
+
   return (
     <Layout>
-      <div className="container-fluid">
-        <h2 className="mb-4 fw-bold">
-          Dashboard Overview
-        </h2>
+      <Box sx={{ display: "flex", flexDirection: "column", gap: 4 }}>
+        <Box>
+          <Typography variant="h4" sx={{ fontWeight: 800 }}>
+            Dashboard Overview
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            Quick system metrics and summaries.
+          </Typography>
+        </Box>
 
-        <div className="row">
-
-          <div className="col-md-4 mb-4">
-            <div
-              className="card shadow-sm"
-              style={{
-                borderTop:
-                  '4px solid #0d6efd',
-              }}
-            >
-              <div className="card-body">
-                <h6 className="text-muted">
-                  Total Employees
-                </h6>
-
-                <h2
-                  className="fw-bold"
-                  style={{
-                    fontSize: '2.5rem',
+        <Grid container spacing={3}>
+          {statItems.map((item) => (
+            <Grid key={item.label} size={{ xs: 12, sm: 6, md: 4 }}>
+              <Card
+                sx={{
+                  position: "relative",
+                  background: "rgba(24, 24, 27, 0.65)",
+                  backdropFilter: "blur(16px)",
+                  border: "1px solid rgba(255, 255, 255, 0.08)",
+                  boxShadow: "0 4px 20px rgba(0, 0, 0, 0.2)",
+                  borderRadius: 3,
+                  transition: "transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out",
+                  "&:hover": {
+                    transform: "translateY(-4px)",
+                    boxShadow: "0 8px 30px rgba(0, 0, 0, 0.4)",
+                  },
+                }}
+              >
+                {/* Border Accent */}
+                <Box
+                  sx={{
+                    position: "absolute",
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    height: 4,
+                    backgroundColor: item.color,
+                    borderTopLeftRadius: "inherit",
+                    borderTopRightRadius: "inherit",
                   }}
-                >
-                  {stats.totalEmployees}
-                </h2>
-              </div>
-            </div>
-          </div>
-
-          <div className="col-md-4 mb-4">
-            <div
-              className="card shadow-sm"
-              style={{
-                borderTop:
-                  '4px solid #6f42c1',
-              }}
-            >
-              <div className="card-body">
-                <h6 className="text-muted">
-                  Total Departments
-                </h6>
-
-                <h2
-                  className="fw-bold"
-                  style={{
-                    fontSize: '2.5rem',
-                  }}
-                >
-                  {stats.totalDepartments}
-                </h2>
-              </div>
-            </div>
-          </div>
-
-          <div className="col-md-4 mb-4">
-            <div
-              className="card shadow-sm"
-              style={{
-                borderTop:
-                  '4px solid #fd7e14',
-              }}
-            >
-              <div className="card-body">
-                <h6 className="text-muted">
-                  Total Leaves
-                </h6>
-
-                <h2
-                  className="fw-bold"
-                  style={{
-                    fontSize: '2.5rem',
-                  }}
-                >
-                  {stats.totalLeaves}
-                </h2>
-              </div>
-            </div>
-          </div>
-
-          <div className="col-md-4 mb-4">
-            <div
-              className="card shadow-sm"
-              style={{
-                borderTop:
-                  '4px solid #ffc107',
-              }}
-            >
-              <div className="card-body">
-                <h6 className="text-muted">
-                  Pending Leaves
-                </h6>
-
-                <h2
-                  className="fw-bold"
-                  style={{
-                    fontSize: '2.5rem',
-                  }}
-                >
-                  {stats.pendingLeaves}
-                </h2>
-              </div>
-            </div>
-          </div>
-
-          <div className="col-md-4 mb-4">
-            <div
-              className="card shadow-sm"
-              style={{
-                borderTop:
-                  '4px solid #198754',
-              }}
-            >
-              <div className="card-body">
-                <h6 className="text-muted">
-                  Approved Leaves
-                </h6>
-
-                <h2
-                  className="fw-bold"
-                  style={{
-                    fontSize: '2.5rem',
-                  }}
-                >
-                  {stats.approvedLeaves}
-                </h2>
-              </div>
-            </div>
-          </div>
-
-          <div className="col-md-4 mb-4">
-            <div
-              className="card shadow-sm"
-              style={{
-                borderTop:
-                  '4px solid #dc3545',
-              }}
-            >
-              <div className="card-body">
-                <h6 className="text-muted">
-                  Rejected Leaves
-                </h6>
-
-                <h2
-                  className="fw-bold"
-                  style={{
-                    fontSize: '2.5rem',
-                  }}
-                >
-                  {stats.rejectedLeaves}
-                </h2>
-              </div>
-            </div>
-          </div>
-
-        </div>
-      </div>
+                />
+                <CardContent sx={{ p: 3, pt: 4 }}>
+                  <Typography variant="subtitle2" color="text.secondary" sx={{ fontWeight: 600, mb: 1 }}>
+                    {item.label}
+                  </Typography>
+                  <Typography variant="h3" sx={{ fontWeight: 800, color: "text.primary" }}>
+                    {item.value}
+                  </Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+          ))}
+        </Grid>
+      </Box>
     </Layout>
   );
 }
