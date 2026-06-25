@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, UnauthorizedException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { JwtService } from '@nestjs/jwt';
@@ -9,6 +9,7 @@ import { randomUUID } from 'crypto';
 import { ForgotPasswordDto } from 'src/auth/dto/forgot-password.dto';
 import { ResetPasswordDto } from 'src/auth/dto/reset-password.dto';
 import { BadRequestException } from '@nestjs/common';
+import { ChangePasswordDto } from './dto/change-password.dto';
 
 @Injectable()
 export class AuthService {
@@ -17,7 +18,7 @@ export class AuthService {
     private readonly userRepository: Repository<User>,
 
     private readonly jwtService: JwtService,
-  ) {}
+  ) { }
 
   async login(loginDto: LoginDto) {
     const user = await this.userRepository.findOne({
@@ -25,7 +26,7 @@ export class AuthService {
         email: loginDto.email.toLowerCase(),
       },
     });
-    
+
     if (!user) {
       throw new UnauthorizedException('Invalid credentials');
     }
@@ -89,5 +90,47 @@ export class AuthService {
     return {
       message: 'Password reset successful',
     };
+  } async changePassword(
+    userId: string,
+    changePasswordDto: ChangePasswordDto,
+  ) {
+    const user =
+      await this.userRepository.findOne({
+        where: {
+          id: userId,
+        },
+      });
+
+    if (!user) {
+      throw new NotFoundException(
+        'User not found',
+      );
+    }
+
+    const isPasswordValid =
+      await bcrypt.compare(
+        changePasswordDto.currentPassword,
+        user.password,
+      );
+
+    if (!isPasswordValid) {
+      throw new BadRequestException(
+        'Current password is incorrect',
+      );
+    }
+
+    user.password = await bcrypt.hash(
+      changePasswordDto.newPassword,
+      10,
+    );
+
+    await this.userRepository.save(user);
+
+    return {
+      message:
+        'Password changed successfully',
+    };
   }
+
+
 }
