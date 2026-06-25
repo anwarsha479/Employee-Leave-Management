@@ -6,6 +6,8 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { Role } from '../enums/role.enum';
+import { OneToOne } from 'typeorm';
+import { Employee } from 'src/employees/entities/employee.entity';
 
 @Entity('users')
 export class User {
@@ -48,6 +50,12 @@ export class User {
     type: 'timestamp',
   })
   updatedAt!: Date;
+
+  @OneToOne(
+    () => Employee,
+    (employee) => employee.user,
+  )
+  employee?: Employee;
 
   //  One-time token used for password reset.
   @Column({
