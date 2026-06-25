@@ -1,12 +1,8 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-
 import { InjectRepository } from '@nestjs/typeorm';
-
 import { Repository } from 'typeorm';
-
 import { Leave } from './entities/leave.entity';
 import { Employee } from '../employees/entities/employee.entity';
-
 import { CreateLeaveDto } from './dto/create-leave.dto';
 import { LeaveStatus } from './enums/leave-status.enum';
 
@@ -18,7 +14,7 @@ export class LeavesService {
 
     @InjectRepository(Employee)
     private readonly employeeRepository: Repository<Employee>,
-  ) {}
+  ) { }
 
   async create(
     createLeaveDto: CreateLeaveDto,
@@ -53,12 +49,10 @@ export class LeavesService {
     }
 
     const leave = this.leaveRepository.create({
+      leaveType: createLeaveDto.leaveType,
       startDate: createLeaveDto.startDate,
-
       endDate: createLeaveDto.endDate,
-
       reason: createLeaveDto.reason,
-
       employee,
     });
 
@@ -66,90 +60,90 @@ export class LeavesService {
   }
 
 
-async findAll(
-  page = 1,
-  limit = 10,
-  search?: string,
-  status?: string,
-  employeeId?: string,
-  role?: string,
-  userId?: string,
-) {
-  const skip = (page - 1) * limit;
-
-  const query =
-    this.leaveRepository.createQueryBuilder(
-      'leave',
-    );
-
-  query.leftJoinAndSelect(
-    'leave.employee',
-    'employee',
-  );
-
-  query.leftJoinAndSelect(
-    'employee.user',
-    'user',
-  );
-
-  if (search) {
-    query.andWhere(
-      'LOWER(employee.name) LIKE LOWER(:search)',
-      {
-        search: `%${search}%`,
-      },
-    );
-  }
-
-  if (status) {
-    query.andWhere(
-      'leave.status = :status',
-      {
-        status,
-      },
-    );
-  }
-
-  if (employeeId) {
-    query.andWhere(
-      'employee.id = :employeeId',
-      {
-        employeeId,
-      },
-    );
-  }
-
-  // Employee can only see their own leaves
-  if (
-    role === 'EMPLOYEE' &&
-    userId
+  async findAll(
+    page = 1,
+    limit = 10,
+    search?: string,
+    status?: string,
+    employeeId?: string,
+    role?: string,
+    userId?: string,
   ) {
-    query.andWhere(
-      'user.id = :userId',
-      {
-        userId,
-      },
+    const skip = (page - 1) * limit;
+
+    const query =
+      this.leaveRepository.createQueryBuilder(
+        'leave',
+      );
+
+    query.leftJoinAndSelect(
+      'leave.employee',
+      'employee',
     );
+
+    query.leftJoinAndSelect(
+      'employee.user',
+      'user',
+    );
+
+    if (search) {
+      query.andWhere(
+        'LOWER(employee.name) LIKE LOWER(:search)',
+        {
+          search: `%${search}%`,
+        },
+      );
+    }
+
+    if (status) {
+      query.andWhere(
+        'leave.status = :status',
+        {
+          status,
+        },
+      );
+    }
+
+    if (employeeId) {
+      query.andWhere(
+        'employee.id = :employeeId',
+        {
+          employeeId,
+        },
+      );
+    }
+
+    // Employee can only see their own leaves
+    if (
+      role === 'EMPLOYEE' &&
+      userId
+    ) {
+      query.andWhere(
+        'user.id = :userId',
+        {
+          userId,
+        },
+      );
+    }
+
+    query
+      .orderBy(
+        'leave.createdAt',
+        'DESC',
+      )
+      .skip(skip)
+      .take(limit);
+
+    const [data, total] =
+      await query.getManyAndCount();
+
+    return {
+      data,
+      total,
+      page,
+      limit,
+    };
   }
-
-  query
-    .orderBy(
-      'leave.createdAt',
-      'DESC',
-    )
-    .skip(skip)
-    .take(limit);
-
-  const [data, total] =
-    await query.getManyAndCount();
-
-  return {
-    data,
-    total,
-    page,
-    limit,
-  };
-}
 
 
   async findOne(id: string): Promise<Leave> {

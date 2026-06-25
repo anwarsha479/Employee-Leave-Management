@@ -9,6 +9,7 @@ import {
 } from 'typeorm';
 import { Employee } from '../../employees/entities/employee.entity';
 import { LeaveStatus } from '../enums/leave-status.enum';
+import { LeaveType } from '../enums/leave-type.enum';
 
 @Entity('leaves')
 export class Leave {
@@ -29,6 +30,12 @@ export class Leave {
     length: 500,
   })
   reason!: string;
+
+  @Column({
+    type: 'enum',
+    enum: LeaveType,
+  })
+  leaveType!: LeaveType;
 
   @Column({
     type: 'enum',

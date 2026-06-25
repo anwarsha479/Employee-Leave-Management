@@ -6,12 +6,22 @@ import {
   IsUUID,
   MaxLength,
   IsOptional,
+  IsEnum,
 } from 'class-validator';
+import { LeaveType } from '../enums/leave-type.enum';
 
 export class CreateLeaveDto {
   @IsOptional()
   @IsUUID()
   employeeId!: string;
+
+  @ApiProperty({
+    example: LeaveType.CASUAL,
+    enum: LeaveType,
+    description: 'Type of leave',
+  })
+  @IsEnum(LeaveType)
+  leaveType!: LeaveType;
 
   @ApiProperty({
     example: '2026-06-15',
