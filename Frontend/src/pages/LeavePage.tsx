@@ -94,7 +94,24 @@ function LeavesPage() {
     },
     { field: "startDate", headerName: "Start Date", flex: 1, minWidth: 100, sortable: true },
     { field: "endDate", headerName: "End Date", flex: 1, minWidth: 100, sortable: true },
-    { field: "reason", headerName: "Reason", flex: 1.8, minWidth: 180, sortable: true },
+    {
+  field: "reason",
+  headerName: "Reason",
+  flex: 2,
+  minWidth: 300,
+  sortable: true,
+  renderCell: (params: any) => (
+    <Typography
+      sx={{
+        whiteSpace: "normal",
+        lineHeight: 1.4,
+        py: 1,
+      }}
+    >
+      {params.value}
+    </Typography>
+  ),
+},
     {
       field: "status",
       headerName: "Status",

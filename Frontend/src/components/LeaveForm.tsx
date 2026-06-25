@@ -9,6 +9,10 @@ import {
   Box,
   IconButton,
   Typography,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 
@@ -21,6 +25,7 @@ interface LeaveFormProps {
 
 function LeaveForm({ open, onClose, onSubmit }: LeaveFormProps) {
   const [startDate, setStartDate] = useState("");
+  const [leaveType, setLeaveType] = useState("CASUAL");
   const [endDate, setEndDate] = useState("");
   const [reason, setReason] = useState("");
 
@@ -28,11 +33,13 @@ function LeaveForm({ open, onClose, onSubmit }: LeaveFormProps) {
     e.preventDefault();
 
     onSubmit({
+      leaveType,
       startDate,
       endDate,
       reason,
     });
 
+    setLeaveType("CASUAL");
     setStartDate("");
     setEndDate("");
     setReason("");
@@ -58,6 +65,29 @@ function LeaveForm({ open, onClose, onSubmit }: LeaveFormProps) {
       <form onSubmit={handleSubmit}>
         <DialogContent dividers sx={{ p: 3 }}>
           <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+            <FormControl fullWidth>
+              <InputLabel>Leave Type</InputLabel>
+
+              <Select
+                value={leaveType}
+                label="Leave Type"
+                onChange={(e) =>
+                  setLeaveType(e.target.value)
+                }
+              >
+                <MenuItem value="CASUAL">
+                  Casual Leave
+                </MenuItem>
+
+                <MenuItem value="SICK">
+                  Sick Leave
+                </MenuItem>
+
+                <MenuItem value="WORK_FROM_HOME">
+                  Work From Home
+                </MenuItem>
+              </Select>
+            </FormControl>
             <TextField
               label="Start Date"
               type="date"
