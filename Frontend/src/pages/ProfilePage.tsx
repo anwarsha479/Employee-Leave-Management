@@ -3,14 +3,19 @@ import {
   Card,
   CardContent,
   Typography,
-  CircularProgress,
   Box,
   Avatar,
   Chip,
   Divider,
   Grid,
   Button,
+  CircularProgress,
   TextField,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+
 } from "@mui/material";
 import EmailIcon from "@mui/icons-material/Email";
 import FingerprintIcon from "@mui/icons-material/Fingerprint";
@@ -23,6 +28,7 @@ import Layout from "../components/Layout";
 import {
   getProfile,
   updateProfile,
+  changePassword,
 } from "../services/profile.service";
 
 function ProfilePage() {
@@ -30,6 +36,10 @@ function ProfilePage() {
   const [editing, setEditing] = useState(false);
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
+  const [passwordOpen, setPasswordOpen] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -49,6 +59,16 @@ function ProfilePage() {
 
   const handleSave = async () => {
     try {
+      if (!name.trim()) {
+        alert("Name is required");
+        return;
+      }
+
+      if (!/^\d{10}$/.test(phone)) {
+        alert("Please enter a valid 10-digit phone number");
+        return;
+      }
+
       await updateProfile({
         name,
         phone,
@@ -61,8 +81,57 @@ function ProfilePage() {
       });
 
       setEditing(false);
+      alert("Profile updated successfully");
     } catch (error) {
       console.error(error);
+      alert("Failed to update profile");
+    }
+  };
+
+  const handleChangePassword = async () => {
+    try {
+      if (
+        !currentPassword ||
+        !newPassword ||
+        !confirmPassword
+      ) {
+        alert("Please fill all fields");
+        return;
+      }
+
+      if (newPassword.length < 8) {
+        alert(
+          "Password must be at least 8 characters"
+        );
+        return;
+      }
+
+      if (currentPassword === newPassword) {
+        alert(
+          "New password must be different from current password"
+        );
+        return;
+      }
+
+      if (newPassword !== confirmPassword) {
+        alert("Passwords do not match");
+        return;
+      }
+
+      await changePassword({
+        currentPassword,
+        newPassword,
+      });
+
+      alert("Password changed successfully");
+
+      setPasswordOpen(false);
+      setCurrentPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
+    } catch (error) {
+      console.error(error);
+      alert("Failed to change password");
     }
   };
 
@@ -75,9 +144,12 @@ function ProfilePage() {
             justifyContent: "center",
             alignItems: "center",
             minHeight: "60vh",
+            flexDirection: "column",
+            gap: 2,
           }}
         >
           <CircularProgress />
+          <Typography>Loading profile...</Typography>
         </Box>
       </Layout>
     );
@@ -367,6 +439,7 @@ function ProfilePage() {
                 mt: 4,
                 display: "flex",
                 gap: 2,
+                flexWrap: "wrap",
               }}
             >
               {editing ? (
@@ -392,6 +465,7 @@ function ProfilePage() {
                   >
                     Cancel
                   </Button>
+
                 </>
               ) : (
                 <Button
@@ -402,11 +476,92 @@ function ProfilePage() {
                 >
                   Edit Profile
                 </Button>
+
               )}
+              <Button
+                variant="outlined"
+                onClick={() => setPasswordOpen(true)}
+              >
+                Change Password
+              </Button>
             </Box>
           </CardContent>
         </Card>
       </Box>
+      <Dialog
+        open={passwordOpen}
+        onClose={() => {
+          setPasswordOpen(false);
+          setCurrentPassword("");
+          setNewPassword("");
+          setConfirmPassword("");
+        }}
+        fullWidth
+        maxWidth="sm"
+      >
+        <DialogTitle>
+          Change Password
+        </DialogTitle>
+
+        <DialogContent
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            gap: 2,
+            mt: 1,
+          }}
+        >
+          <TextField
+            label="Current Password"
+            type="password"
+            value={currentPassword}
+            onChange={(e) =>
+              setCurrentPassword(e.target.value)
+            }
+            fullWidth
+          />
+
+          <TextField
+            label="New Password"
+            type="password"
+            value={newPassword}
+            onChange={(e) =>
+              setNewPassword(e.target.value)
+            }
+            fullWidth
+          />
+
+          <TextField
+            label="Confirm Password"
+            type="password"
+            value={confirmPassword}
+            onChange={(e) =>
+              setConfirmPassword(e.target.value)
+            }
+            fullWidth
+          />
+        </DialogContent>
+
+        <DialogActions>
+          <Button
+            onClick={() => {
+              setPasswordOpen(false);
+              setCurrentPassword("");
+              setNewPassword("");
+              setConfirmPassword("");
+            }}
+          >
+            Cancel
+          </Button>
+
+          <Button
+            variant="contained"
+            onClick={handleChangePassword}
+          >
+            Change Password
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Layout>
   );
 }

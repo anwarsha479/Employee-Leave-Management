@@ -7,3 +7,10 @@ export const getProfile = () => {
 export const updateProfile = (data: any) => {
   return api.put("/auth/profile", data);
 };
+
+export const changePassword = (data: {
+  currentPassword: string;
+  newPassword: string;
+}) => {
+  return api.put("/auth/change-password", data);
+};
