@@ -5,6 +5,8 @@ import { Leave } from './entities/leave.entity';
 import { Employee } from '../employees/entities/employee.entity';
 import { CreateLeaveDto } from './dto/create-leave.dto';
 import { LeaveStatus } from './enums/leave-status.enum';
+import { Response } from 'express';
+import * as ExcelJS from 'exceljs';
 
 @Injectable()
 export class LeavesService {
@@ -189,4 +191,90 @@ export class LeavesService {
 
     return this.leaveRepository.save(leave);
   }
+
+  async exportLeaves(
+  res: Response,
+) {
+  const leaves =
+    await this.leaveRepository.find({
+      relations: {
+        employee: true,
+      },
+      order: {
+        createdAt: 'DESC',
+      },
+    });
+
+  const workbook =
+    new ExcelJS.Workbook();
+
+  const worksheet =
+    workbook.addWorksheet(
+      'Leave Requests',
+    );
+
+  worksheet.columns = [
+    {
+      header: 'Employee',
+      key: 'employee',
+      width: 25,
+    },
+    {
+      header: 'Leave Type',
+      key: 'leaveType',
+      width: 20,
+    },
+    {
+      header: 'Start Date',
+      key: 'startDate',
+      width: 20,
+    },
+    {
+      header: 'End Date',
+      key: 'endDate',
+      width: 20,
+    },
+    {
+      header: 'Reason',
+      key: 'reason',
+      width: 40,
+    },
+    {
+      header: 'Status',
+      key: 'status',
+      width: 20,
+    },
+  ];
+
+  leaves.forEach((leave) => {
+    worksheet.addRow({
+      employee:
+        leave.employee?.name,
+      leaveType:
+        leave.leaveType,
+      startDate:
+        leave.startDate,
+      endDate:
+        leave.endDate,
+      reason:
+        leave.reason,
+      status:
+        leave.status,
+    });
+  });
+
+  res.setHeader(
+    'Content-Type',
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  );
+
+  res.setHeader(
+    'Content-Disposition',
+    'attachment; filename=leave-requests.xlsx',
+  );
+
+  await workbook.xlsx.write(res);
+
+  res.end();
+}
 }

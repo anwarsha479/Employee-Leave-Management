@@ -44,3 +44,9 @@ export const rejectLeave = (
     `/leaves/${id}/reject`,
   );
 };
+
+export const exportLeaves = () => {
+  return api.get('/leaves/export', {
+    responseType: 'blob',
+  });
+};

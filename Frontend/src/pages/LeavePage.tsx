@@ -27,7 +27,6 @@ import {
 import SearchIcon from "@mui/icons-material/Search";
 import AddIcon from "@mui/icons-material/Add";
 import ViewColumnIcon from "@mui/icons-material/ViewColumn";
-
 import {
   useReactTable,
   getCoreRowModel,
@@ -35,15 +34,14 @@ import {
   type SortingState,
   type VisibilityState,
 } from "@tanstack/react-table";
-
 import Layout from "../components/Layout";
 import LeaveForm from "../components/LeaveForm";
-
 import {
   getLeaves,
   createLeave,
   approveLeave,
   rejectLeave,
+  exportLeaves
 } from "../services/leave.service";
 
 import { getEmployees } from "../services/employee.service";
@@ -305,6 +303,31 @@ function LeavesPage() {
       fetchLeaves(false);
     }
   };
+  const handleExport = async () => {
+    try {
+      const response = await exportLeaves();
+
+      const url = window.URL.createObjectURL(
+        new Blob([response.data]),
+      );
+
+      const link = document.createElement('a');
+
+      link.href = url;
+      link.setAttribute(
+        'download',
+        'leave-requests.xlsx',
+      );
+
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   // TanStack columns definition
   const columns = useMemo(() => {
@@ -453,6 +476,12 @@ function LeavesPage() {
               Apply Leave
             </Button>
           )}
+          <Button
+            variant="outlined"
+            onClick={handleExport}
+          >
+            Export Excel
+          </Button>
         </Box>
 
         {role === "EMPLOYEE" && (
@@ -618,8 +647,8 @@ function LeavesPage() {
                               userSelect: "none",
                               "&:hover": canSort
                                 ? {
-                                    backgroundColor: "rgba(255, 255, 255, 0.03)",
-                                  }
+                                  backgroundColor: "rgba(255, 255, 255, 0.03)",
+                                }
                                 : {},
                               transition: "background-color 0.15s",
                               textAlign: header.id === "actions" ? "center" : "left",
