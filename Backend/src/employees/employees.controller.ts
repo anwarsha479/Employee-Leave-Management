@@ -27,7 +27,7 @@ import { Role } from '../users/enums/role.enum';
 export class EmployeesController {
   constructor(
     private readonly employeesService: EmployeesService,
-  ) {}
+  ) { }
 
   @Post()
   @UseGuards(JwtAuthGuard, RolesGuard)
@@ -47,17 +47,24 @@ export class EmployeesController {
   findAll(
     @Query('page') page?: number,
     @Query('limit') limit?: number,
+    @Query('offset') offset?: number,
+    @Query('chunk') chunk?: number,
     @Query('search') search?: string,
     @Query('departmentId') departmentId?: string,
+    @Query('sortBy') sortBy?: string,
+    @Query('sortOrder') sortOrder?: 'ASC' | 'DESC',
   ) {
     return this.employeesService.findAll(
       page,
       limit,
+      offset,
+      chunk,
       search,
       departmentId,
+      sortBy,
+      sortOrder,
     );
   }
-
   @Get('me')
   @UseGuards(JwtAuthGuard)
   getMyProfile(

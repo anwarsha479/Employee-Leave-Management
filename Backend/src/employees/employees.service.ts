@@ -22,7 +22,7 @@ export class EmployeesService {
     private readonly departmentRepository: Repository<Department>,
 
     private readonly usersService: UsersService,
-  ) {}
+  ) { }
 
   async create(
     createEmployeeDto: CreateEmployeeDto,
@@ -103,10 +103,14 @@ export class EmployeesService {
   async findAll(
     page = 1,
     limit = 10,
+    offset = 0,
+    chunk = 10,
     search?: string,
     departmentId?: string,
+    sortBy?: string,
+    sortOrder?: 'ASC' | 'DESC',
   ) {
-    const skip = (page - 1) * limit;
+    const skip = offset;
 
     const query =
       this.employeeRepository.createQueryBuilder(
@@ -136,13 +140,27 @@ export class EmployeesService {
       );
     }
 
+    const sortColumns = {
+      employeeCode: 'employee.employeeCode',
+      name: 'employee.name',
+      email: 'employee.email',
+      phone: 'employee.phone',
+      designation: 'employee.designation',
+      joiningDate: 'employee.joiningDate',
+      department: 'department.name',
+    };
+
+    if (sortBy && sortColumns[sortBy]) {
+      const orderField = sortColumns[sortBy];
+      const orderDirection = sortOrder === 'ASC' ? 'ASC' : 'DESC';
+      query.orderBy(orderField, orderDirection);
+    } else {
+      query.orderBy('employee.createdAt', 'DESC');
+    }
+
     query
-      .orderBy(
-        'employee.createdAt',
-        'DESC',
-      )
       .skip(skip)
-      .take(limit);
+      .take(chunk);
 
     const [data, total] =
       await query.getManyAndCount();
@@ -150,8 +168,10 @@ export class EmployeesService {
     return {
       data,
       total,
-      page,
+      offset,
+      chunk,
       limit,
+      hasMore: offset + data.length < total,
     };
   }
 
@@ -170,46 +190,46 @@ export class EmployeesService {
       });
 
     if (!employee) {
-        throw new NotFoundException(
-          'Employee not found',
-        );
+      throw new NotFoundException(
+        'Employee not found',
+      );
     }
 
     return employee;
   }
 
   async getMyProfile(userId: string) {
-  const employee =
-    await this.employeeRepository.findOne({
-      where: {
-        user: {
-          id: userId,
+    const employee =
+      await this.employeeRepository.findOne({
+        where: {
+          user: {
+            id: userId,
+          },
         },
-      },
-      relations: {
-        user: true,
-        department: true,
-      },
-    });
+        relations: {
+          user: true,
+          department: true,
+        },
+      });
 
-  if (!employee) {
-    throw new NotFoundException(
-      'Employee not found',
-    );
+    if (!employee) {
+      throw new NotFoundException(
+        'Employee not found',
+      );
+    }
+
+    return {
+      id: employee.id,
+      employeeCode: employee.employeeCode,
+      name: employee.name,
+      email: employee.email,
+      phone: employee.phone,
+      designation: employee.designation,
+      joiningDate: employee.joiningDate,
+      department: employee.department?.name,
+      role: employee.user?.role,
+    };
   }
-
-  return {
-    id: employee.id,
-    employeeCode: employee.employeeCode,
-    name: employee.name,
-    email: employee.email,
-    phone: employee.phone,
-    designation: employee.designation,
-    joiningDate: employee.joiningDate,
-    department: employee.department?.name,
-    role: employee.user?.role,
-  };
-}
 
   async update(
     id: string,
