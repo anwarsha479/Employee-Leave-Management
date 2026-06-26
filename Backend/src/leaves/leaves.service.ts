@@ -63,13 +63,18 @@ export class LeavesService {
   async findAll(
     page = 1,
     limit = 10,
+    offset = 0,
+    chunk = 10,
     search?: string,
-    status?: string,
-    employeeId?: string,
     role?: string,
     userId?: string,
+    sortBy?: string,
+    sortOrder?: 'ASC' | 'DESC',
+    status?: string,
+    employeeId?: string,
   ) {
-    const skip = (page - 1) * limit;
+    const skip = offset;
+    const take = chunk;
 
     const query =
       this.leaveRepository.createQueryBuilder(
@@ -126,13 +131,25 @@ export class LeavesService {
       );
     }
 
+    const sortColumns = {
+      employee: 'employee.name',
+      startDate: 'leave.startDate',
+      endDate: 'leave.endDate',
+      reason: 'leave.reason',
+      status: 'leave.status',
+    };
+
+    if (sortBy && sortColumns[sortBy]) {
+      const orderField = sortColumns[sortBy];
+      const orderDirection = sortOrder === 'ASC' ? 'ASC' : 'DESC';
+      query.orderBy(orderField, orderDirection);
+    } else {
+      query.orderBy('leave.createdAt', 'DESC');
+    }
+
     query
-      .orderBy(
-        'leave.createdAt',
-        'DESC',
-      )
       .skip(skip)
-      .take(limit);
+      .take(take);
 
     const [data, total] =
       await query.getManyAndCount();
@@ -140,8 +157,10 @@ export class LeavesService {
     return {
       data,
       total,
-      page,
+      offset,
+      chunk,
       limit,
+      hasMore: offset + data.length < total,
     };
   }
 

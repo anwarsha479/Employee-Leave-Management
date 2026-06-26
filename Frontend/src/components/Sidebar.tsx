@@ -43,7 +43,7 @@ function Sidebar({ collapsed }: SidebarProps) {
     { text: "Dashboard", path: "/dashboard", icon: <DashboardIcon />, roles: ["ADMIN", "EMPLOYEE"] },
     { text: "Departments", path: "/departments", icon: <ApartmentIcon />, roles: ["ADMIN"] },
     { text: "Employees", path: "/employees", icon: <PeopleIcon />, roles: ["ADMIN"] },
-    { text: "Profile", path: "/profile", icon: <AccountCircleIcon />, roles: ["ADMIN", "EMPLOYEE"] },
+    { text: "Profile", path: "/profile", icon: <AccountCircleIcon />, roles: ["EMPLOYEE"] },
     { text: "Leaves", path: "/leaves", icon: <EventNoteIcon />, roles: ["ADMIN", "EMPLOYEE"] },
   ];
 

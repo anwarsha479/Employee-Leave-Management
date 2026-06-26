@@ -44,25 +44,32 @@ export class LeavesController {
   }
 
   // Admin can view all leaves
-@Get()
-findAll(
-  @Req() req,
-  @Query('page') page?: number,
-  @Query('limit') limit?: number,
-) {
-  const role = req.user.role;
-  const userId = req.user.userId;
+  @Get()
+  findAll(
+    @Req() req,
+    @Query('page') page?: number,
+    @Query('limit') limit?: number,
+    @Query('offset') offset?: number,
+    @Query('chunk') chunk?: number,
+    @Query('search') search?: string,
+    @Query('sortBy') sortBy?: string,
+    @Query('sortOrder') sortOrder?: 'ASC' | 'DESC',
+  ) {
+    const role = req.user.role;
+    const userId = req.user.userId;
 
-  return this.leavesService.findAll(
-    page,
-    limit,
-    undefined,
-    undefined,
-    undefined,
-    role,
-    userId,
-  );
-}
+    return this.leavesService.findAll(
+      page,
+      limit,
+      offset,
+      chunk,
+      search,
+      role,
+      userId,
+      sortBy,
+      sortOrder,
+    );
+  }
 
   // Admin can view leave details
   @Get(':id')

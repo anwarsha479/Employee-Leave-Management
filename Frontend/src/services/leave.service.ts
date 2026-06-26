@@ -1,7 +1,23 @@
+import type { AxiosRequestConfig } from "axios";
 import api from "../api/axios";
 
-export const getLeaves = () => {
-  return api.get("/leaves");
+export const getLeaves = (
+  search = "",
+  limit = 10,
+  offset = 0,
+  chunk = 10,
+  sortBy = "",
+  sortOrder = "",
+  config?: AxiosRequestConfig,
+) => {
+  let url = `/leaves?search=${search}&limit=${limit}&offset=${offset}&chunk=${chunk}`;
+  if (sortBy) {
+    url += `&sortBy=${sortBy}`;
+  }
+  if (sortOrder) {
+    url += `&sortOrder=${sortOrder}`;
+  }
+  return api.get(url, config);
 };
 
 export const createLeave = (
