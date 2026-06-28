@@ -23,7 +23,7 @@ import PhoneIcon from "@mui/icons-material/Phone";
 import BusinessIcon from "@mui/icons-material/Business";
 import WorkIcon from "@mui/icons-material/Work";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
-
+import { uploadProfileImage } from '../services/employee.service';
 import Layout from "../components/Layout";
 import {
   getProfile,
@@ -56,6 +56,28 @@ function ProfilePage() {
 
     fetchProfile();
   }, []);
+
+  const handleProfileImageUpload = async (
+  event: React.ChangeEvent<HTMLInputElement>,
+) => {
+  const file = event.target.files?.[0];
+
+  if (!file || !profile?.id) {
+    return;
+  }
+
+  try {
+    const response =
+      await uploadProfileImage(
+        profile.id,
+        file,
+      );
+
+    setProfile(response.data);
+  } catch (error) {
+    console.error(error);
+  }
+};
 
   const handleSave = async () => {
     try {
@@ -219,19 +241,47 @@ function ProfilePage() {
               }}
             >
               <Avatar
-                sx={{
-                  width: 100,
-                  height: 100,
-                  fontSize: "2rem",
-                  fontWeight: 700,
-                  bgcolor:
-                    profile.role === "ADMIN"
-                      ? "primary.main"
-                      : "secondary.main",
-                }}
-              >
-                {userInitials}
-              </Avatar>
+  src={
+    profile?.profileImage
+      ? `http://localhost:3000/uploads/${profile.profileImage}`
+      : undefined
+  }
+  sx={{
+    width: 100,
+    height: 100,
+    fontSize: "2rem",
+    fontWeight: 700,
+    bgcolor:
+      profile.role === "ADMIN"
+        ? "primary.main"
+        : "secondary.main",
+  }}
+>
+  {!profile?.profileImage && userInitials}
+</Avatar>
+<Box
+  sx={{
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    gap: 1,
+  }}
+>
+  <Button
+    variant="outlined"
+    component="label"
+    size="small"
+  >
+    Upload Photo
+
+    <input
+      hidden
+      type="file"
+      accept="image/*"
+      onChange={handleProfileImageUpload}
+    />
+  </Button>
+</Box>
 
               <Box
                 sx={{

@@ -2,6 +2,7 @@ import {
   Injectable,
   ConflictException,
   NotFoundException,
+  ForbiddenException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -228,6 +229,7 @@ export class EmployeesService {
       joiningDate: employee.joiningDate,
       department: employee.department?.name,
       role: employee.user?.role,
+      profileImage: employee.profileImage,
     };
   }
 
@@ -340,5 +342,44 @@ export class EmployeesService {
         userId,
       );
     }
+  }
+
+  async uploadProfileImage(
+    id: string,
+    filename: string,
+    userId: string,
+    role: string,
+  ) {
+    const employee =
+      await this.findOne(id);
+
+    if (role === 'EMPLOYEE') {
+      const myEmployee =
+        await this.employeeRepository.findOne({
+          where: {
+            user: {
+              id: userId,
+            },
+          },
+          relations: {
+            user: true,
+          },
+        });
+
+      if (
+        !myEmployee ||
+        myEmployee.id !== id
+      ) {
+        throw new ForbiddenException(
+          'You cannot upload another employee profile picture',
+        );
+      }
+    }
+
+    employee.profileImage = filename;
+
+    return this.employeeRepository.save(
+      employee,
+    );
   }
 }

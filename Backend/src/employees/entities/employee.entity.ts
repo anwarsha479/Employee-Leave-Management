@@ -57,6 +57,9 @@ export class Employee {
   })
   user?: User;
 
+  @Column({ nullable: true })
+  profileImage?: string;
+
   @Column({
     type: 'date',
   })

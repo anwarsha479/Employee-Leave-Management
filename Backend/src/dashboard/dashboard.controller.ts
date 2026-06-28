@@ -16,7 +16,7 @@ import { ApiBearerAuth } from '@nestjs/swagger';
 export class DashboardController {
   constructor(
     private readonly dashboardService: DashboardService,
-  ) {}
+  ) { }
 
   @Get('stats')
   getStats() {
@@ -35,5 +35,10 @@ export class DashboardController {
     return this.dashboardService.getEmployeeStats(
       req.user.userId,
     );
+  }
+
+  @Get('employees-by-department')
+  getEmployeesByDepartment() {
+    return this.dashboardService.getEmployeesByDepartment();
   }
 }
