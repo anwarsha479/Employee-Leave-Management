@@ -1,18 +1,41 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
+import React from "react";
+import ReactDOM from "react-dom/client";
 
-import { ThemeProvider } from '@mui/material/styles';
-import CssBaseline from '@mui/material/CssBaseline';
-import theme from './theme';
-import App from './App';
+import {
+  ThemeProvider,
+  CssBaseline,
+} from "@mui/material";
 
-ReactDOM.createRoot(
-  document.getElementById('root')!,
-).render(
-  <React.StrictMode>
-    <ThemeProvider theme={theme}>
+import App from "./App";
+import getTheme from "./theme";
+
+import {
+  ThemeProviderWrapper,
+  useThemeContext,
+} from "./context/ThemeContext";
+
+function AppTheme() {
+  const { mode } =
+    useThemeContext();
+
+  return (
+    <ThemeProvider
+      theme={getTheme(
+        mode as "light" | "dark",
+      )}
+    >
       <CssBaseline />
       <App />
     </ThemeProvider>
+  );
+}
+
+ReactDOM.createRoot(
+  document.getElementById("root")!,
+).render(
+  <React.StrictMode>
+    <ThemeProviderWrapper>
+      <AppTheme />
+    </ThemeProviderWrapper>
   </React.StrictMode>,
 );

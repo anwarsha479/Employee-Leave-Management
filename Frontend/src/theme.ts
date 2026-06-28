@@ -1,111 +1,120 @@
 import { createTheme } from "@mui/material/styles";
 
-const theme = createTheme({
-  palette: {
-    mode: "dark",
-    primary: {
-      main: "#6366f1", // Indigo
-      light: "#818cf8",
-      dark: "#4f46e5",
-      contrastText: "#ffffff",
-    },
-    secondary: {
-      main: "#10b981", // Emerald
-      light: "#34d399",
-      dark: "#059669",
-      contrastText: "#ffffff",
-    },
-    background: {
-      default: "#09090b", // Sleek ultra-dark background
-      paper: "#18181b", // Card and surface dark background
-    },
-    text: {
-      primary: "#f4f4f5",
-      secondary: "#a1a1aa",
-    },
-    divider: "rgba(255, 255, 255, 0.08)",
-  },
-  typography: {
-    fontFamily: '"Outfit", "Inter", "Roboto", "Helvetica", "Arial", sans-serif',
-    h1: {
-      fontWeight: 700,
-    },
-    h2: {
-      fontWeight: 700,
-    },
-    h3: {
-      fontWeight: 600,
-    },
-    h4: {
-      fontWeight: 600,
-    },
-    h5: {
-      fontWeight: 600,
-    },
-    h6: {
-      fontWeight: 600,
-    },
-    subtitle1: {
-      fontWeight: 500,
-    },
-    subtitle2: {
-      fontWeight: 500,
-    },
-    body1: {
-      lineHeight: 1.6,
-    },
-    button: {
-      textTransform: "none",
-      fontWeight: 600,
-    },
-  },
-  shape: {
-    borderRadius: 12,
-  },
-  components: {
-    MuiButton: {
-      styleOverrides: {
-        root: {
-          borderRadius: 8,
-          padding: "8px 16px",
-          transition: "all 0.2s ease-in-out",
-          "&:hover": {
-            transform: "translateY(-1px)",
-            boxShadow: "0 4px 12px rgba(99, 102, 241, 0.2)",
-          },
-        },
+const getTheme = (
+  mode: "light" | "dark",
+) =>
+  createTheme({
+    palette: {
+      mode,
+      primary: {
+        main: "#6366f1",
+        light: mode === "dark" ? "#818cf8" : "#4f46e5",
+        dark: "#4f46e5",
+        contrastText: "#ffffff",
       },
-    },
-    MuiCard: {
-      styleOverrides: {
-        root: {
-          backgroundImage: "none",
-          border: "1px solid rgba(255, 255, 255, 0.08)",
-          boxShadow: "0 4px 20px rgba(0, 0, 0, 0.25)",
-        },
+      secondary: {
+        main: "#10b981",
+        light: "#34d399",
+        dark: "#059669",
+        contrastText: "#ffffff",
       },
-    },
-    MuiDialog: {
-      styleOverrides: {
-        paper: {
-          backgroundImage: "none",
-          border: "1px solid rgba(255, 255, 255, 0.1)",
-          boxShadow: "0 8px 32px rgba(0, 0, 0, 0.4)",
-        },
-      },
-    },
-    MuiOutlinedInput: {
-      styleOverrides: {
-        input: {
-          "&:-webkit-autofill": {
-            WebkitBoxShadow: "0 0 0 100px #18181b inset !important",
-            WebkitTextFillColor: "#f4f4f5 !important",
-            caretColor: "#f4f4f5",
-          },
-        },
-      },
-    },
-  },
-});
 
-export default theme;
+      ...(mode === "dark"
+        ? {
+            background: {
+              default: "#09090b",
+              paper: "#18181b",
+            },
+            text: {
+              primary: "#f4f4f5",
+              secondary: "#a1a1aa",
+            },
+            divider: "rgba(255,255,255,0.08)",
+          }
+        : {
+            background: {
+              default: "#f8fafc",
+              paper: "#ffffff",
+            },
+            text: {
+              primary: "#18181b",
+              secondary: "#52525b",
+            },
+            divider: "rgba(0,0,0,0.08)",
+          }),
+    },
+
+    typography: {
+      fontFamily:
+        '"Outfit", "Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+    },
+
+    shape: {
+      borderRadius: 12,
+    },
+    components: {
+      MuiButton: {
+        styleOverrides: {
+          root: {
+            borderRadius: 8,
+            transition: "all 0.2s ease-in-out",
+            "&:hover": {
+              transform: "translateY(-1px)",
+            },
+          },
+        },
+      },
+      MuiCard: {
+        styleOverrides: {
+          root: {
+            backgroundImage: "none",
+            border: mode === "dark"
+              ? "1px solid rgba(255, 255, 255, 0.08) !important"
+              : "1px solid rgba(0, 0, 0, 0.08) !important",
+            boxShadow: mode === "dark"
+              ? "0 4px 20px rgba(0, 0, 0, 0.4) !important"
+              : "0 4px 20px rgba(0, 0, 0, 0.05) !important",
+            backgroundColor: mode === "dark" 
+              ? "rgba(24, 24, 27, 0.65) !important" 
+              : "rgba(255, 255, 255, 0.8) !important",
+            backdropFilter: "blur(16px)",
+          },
+        },
+      },
+      MuiTableCell: {
+        styleOverrides: {
+          head: {
+            backgroundColor: mode === "dark" ? "#18181b !important" : "#ffffff !important",
+            color: mode === "dark" ? "#f4f4f5 !important" : "#18181b !important",
+            borderBottom: mode === "dark"
+              ? "2px solid rgba(255,255,255,0.08) !important"
+              : "2px solid rgba(0,0,0,0.08) !important",
+          },
+          body: {
+            borderBottom: mode === "dark"
+              ? "1px solid rgba(255,255,255,0.08) !important"
+              : "1px solid rgba(0,0,0,0.08) !important",
+          },
+        },
+      },
+      MuiOutlinedInput: {
+        styleOverrides: {
+          root: {
+            borderRadius: 8,
+          },
+          input: {
+            "&:-webkit-autofill": {
+              WebkitBoxShadow: mode === "dark"
+                ? "0 0 0 100px #18181b inset !important"
+                : "0 0 0 100px #f8fafc inset !important",
+              WebkitTextFillColor: mode === "dark" ? "#f4f4f5 !important" : "#18181b !important",
+              caretColor: mode === "dark" ? "#f4f4f5" : "#18181b",
+              transition: "background-color 5000s ease-in-out 0s",
+            },
+          },
+        },
+      },
+    },
+  });
+
+export default getTheme;

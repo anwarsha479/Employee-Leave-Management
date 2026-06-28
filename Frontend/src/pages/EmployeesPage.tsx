@@ -22,6 +22,7 @@ import {
   Menu,
   Checkbox,
   FormControlLabel,
+  Pagination,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import AddIcon from "@mui/icons-material/Add";
@@ -70,6 +71,8 @@ function EmployeesPage() {
   const [, _setOffset] = useState(0);
   const [hasMore, _setHasMore] = useState(true);
   const [loading, _setLoading] = useState(false);
+  const [page, setPage] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
 
   // TanStack Table states
   const [sorting, setSorting] = useState<SortingState>([]);
@@ -103,6 +106,7 @@ function EmployeesPage() {
   const debouncedSearchRef = useRef("");
   const sortingRef = useRef<SortingState>([]);
   const abortControllerRef = useRef<AbortController | null>(null);
+  const pageRef = useRef(1);
 
   // Helper state & ref sync setters
   const setEmployeesState = (data: any[]) => {
@@ -133,6 +137,10 @@ function EmployeesPage() {
   useEffect(() => {
     sortingRef.current = sorting;
   }, [sorting]);
+
+  useEffect(() => {
+    pageRef.current = page;
+  }, [page]);
 
   // Persist column visibility
   useEffect(() => {
@@ -165,9 +173,12 @@ function EmployeesPage() {
     try {
       setLoadingState(true);
 
-      const currentOffset = reset ? 0 : offsetRef.current;
-      const currentEmployees = reset ? [] : employeesRef.current;
+      const currentPage = pageRef.current;
       const currentPageSize = pageSizeRef.current;
+      const baseOffset = (currentPage - 1) * currentPageSize;
+      
+      const currentOffsetInsidePage = reset ? 0 : offsetRef.current;
+      const currentEmployees = reset ? [] : employeesRef.current;
       const currentSearch = debouncedSearchRef.current;
       const currentSorting = sortingRef.current;
 
@@ -189,7 +200,7 @@ function EmployeesPage() {
       const response = await getEmployees(
         currentSearch,
         currentPageSize,
-        currentOffset,
+        baseOffset + currentOffsetInsidePage,
         chunkToFetch,
         sortBy,
         sortOrder,
@@ -200,6 +211,9 @@ function EmployeesPage() {
 
       const newEmployees = response.data?.data || [];
       const responseHasMore = response.data?.hasMore ?? false;
+      const responseTotal = response.data?.total ?? 0;
+
+      setTotalCount(responseTotal);
 
       if (newEmployees.length === 0) {
         setHasMoreState(false);
@@ -219,7 +233,7 @@ function EmployeesPage() {
       }
 
       setEmployeesState(updatedEmployees);
-      setOffsetState(currentOffset + newEmployees.length);
+      setOffsetState(currentOffsetInsidePage + newEmployees.length);
 
       // Stop scrolling if we reached the selected page size limit or backend has no more records
       const reachedPageSize = updatedEmployees.length >= currentPageSize;
@@ -246,8 +260,24 @@ function EmployeesPage() {
     }
   };
 
-  // Trigger search, page size, or sorting resets
+  // Keep track of previous dependencies to detect what changed
+  const prevDeps = useRef({ debouncedSearch, pageSize, sorting });
+
+  // Trigger search, page size, page, or sorting resets
   useEffect(() => {
+    const searchChanged = prevDeps.current.debouncedSearch !== debouncedSearch;
+    const pageSizeChanged = prevDeps.current.pageSize !== pageSize;
+    const sortingChanged = prevDeps.current.sorting !== sorting;
+
+    prevDeps.current = { debouncedSearch, pageSize, sorting };
+
+    if (searchChanged || pageSizeChanged || sortingChanged) {
+      if (page !== 1) {
+        setPage(1);
+        return;
+      }
+    }
+
     setEmployeesState([]);
     setOffsetState(0);
     setHasMoreState(true);
@@ -258,7 +288,7 @@ function EmployeesPage() {
         abortControllerRef.current.abort();
       }
     };
-  }, [debouncedSearch, pageSize, sorting]);
+  }, [debouncedSearch, pageSize, page, sorting]);
 
   useEffect(() => {
     fetchDepartments();
@@ -407,6 +437,8 @@ function EmployeesPage() {
     getCoreRowModel: getCoreRowModel(),
     manualSorting: true, // Server-side sorting
   });
+
+  const totalPages = Math.ceil(totalCount / pageSize);
 
   return (
     <Layout>
@@ -714,8 +746,28 @@ function EmployeesPage() {
             {!hasMore && employees.length > 0 && (
               <Box sx={{ display: "flex", justifyContent: "center", py: 2 }}>
                 <Typography variant="caption" color="text.secondary" sx={{ letterSpacing: 0.5 }}>
-                  All employees loaded (showing {employees.length} of {employees.length})
+                  Page {page} loaded (showing {employees.length} items)
                 </Typography>
+              </Box>
+            )}
+
+            {totalPages > 1 && (
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "center",
+                  mt: 3,
+                  pt: 2,
+                  borderTop: "1px solid",
+                  borderColor: "divider",
+                }}
+              >
+                <Pagination
+                  count={totalPages}
+                  page={page}
+                  onChange={(_, val) => setPage(val)}
+                  color="primary"
+                />
               </Box>
             )}
           </CardContent>

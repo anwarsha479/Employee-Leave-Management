@@ -177,8 +177,8 @@ function Sidebar({ collapsed }: SidebarProps) {
           variant="contained"
           onClick={handleLogout}
           sx={{
-            backgroundColor: "rgba(239, 68, 68, 0.1)",
-            color: "#f87171",
+            backgroundColor: "rgba(230, 29, 29, 0.78)",
+            color: "#ecececff",
             border: "1px solid rgba(239, 68, 68, 0.25)",
             width: "100%",
             justifyContent: collapsed ? "center" : "flex-start",
@@ -188,7 +188,7 @@ function Sidebar({ collapsed }: SidebarProps) {
             boxShadow: "none",
             transition: "all 0.2s ease-in-out",
             "&:hover": {
-              backgroundColor: "#ef4444",
+              backgroundColor: "#ec2121ff",
               color: "#ffffff",
               boxShadow: "0 4px 12px rgba(239, 68, 68, 0.3)",
               border: "1px solid #ef4444",
