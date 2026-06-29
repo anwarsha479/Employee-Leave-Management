@@ -5,9 +5,9 @@ import {
 
 export class ChangePasswordDto {
   @IsNotEmpty()
-  currentPassword: string;
+  currentPassword!: string;
 
   @IsNotEmpty()
   @MinLength(8)
-  newPassword: string;
+  newPassword!: string;
 }

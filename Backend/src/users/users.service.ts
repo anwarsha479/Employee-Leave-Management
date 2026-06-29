@@ -87,7 +87,7 @@ export class UsersService {
         employee: true,
       },
     });
-
+user
     if (!user) {
       throw new NotFoundException(
         'User not found',
