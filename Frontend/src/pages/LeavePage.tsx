@@ -12,18 +12,9 @@ import {
   InputLabel,
   Select,
   MenuItem,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
-  CircularProgress,
   Menu,
   Checkbox,
   FormControlLabel,
-  Pagination,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import AddIcon from "@mui/icons-material/Add";
@@ -31,11 +22,11 @@ import ViewColumnIcon from "@mui/icons-material/ViewColumn";
 import {
   useReactTable,
   getCoreRowModel,
-  flexRender,
   type SortingState,
   type VisibilityState,
 } from "@tanstack/react-table";
 import Layout from "../components/Layout";
+import { InfiniteScrollTable } from "../components/InfiniteScrollTable";
 import LeaveForm from "../components/LeaveForm";
 import {
   getLeaves,
@@ -66,6 +57,7 @@ function LeavesPage() {
   const [, _setOffset] = useState(0);
   const [hasMore, _setHasMore] = useState(true);
   const [loading, _setLoading] = useState(false);
+  // States for hybrid scroll-based pagination
   const [page, setPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
 
@@ -96,14 +88,14 @@ function LeavesPage() {
 
   // Refs to prevent stale closures in async/scroll handlers
   const leavesRef = useRef<any[]>([]);
-  const offsetRef = useRef(0);
+  const offsetRef = useRef(0); // Tracks scroll offset loaded inside the active page
   const hasMoreRef = useRef(true);
   const loadingRef = useRef(false);
   const pageSizeRef = useRef(10);
   const debouncedSearchRef = useRef("");
   const sortingRef = useRef<SortingState>([]);
   const abortControllerRef = useRef<AbortController | null>(null);
-  const pageRef = useRef(1);
+  const pageRef = useRef(1); // Synchronizes active page index for scroll operations
 
   // Helper state & ref sync setters
   const setLeavesState = (data: any[]) => {
@@ -297,7 +289,7 @@ function LeavesPage() {
   // Keep track of previous dependencies to detect what changed
   const prevDeps = useRef({ debouncedSearch, pageSize, sorting });
 
-  // Trigger search, page size, page, or sorting resets
+  // Resets infinite scroll offset state and loads data when filters, sorting, or pages change
   useEffect(() => {
     const searchChanged = prevDeps.current.debouncedSearch !== debouncedSearch;
     const pageSizeChanged = prevDeps.current.pageSize !== pageSize;
@@ -305,13 +297,15 @@ function LeavesPage() {
 
     prevDeps.current = { debouncedSearch, pageSize, sorting };
 
+    // Reset back to page 1 if query filters change (setPage will trigger a reload)
     if (searchChanged || pageSizeChanged || sortingChanged) {
       if (page !== 1) {
         setPage(1);
-        return;
+        return; // Avoid double load: let the page state trigger handle the next run
       }
     }
 
+    // Reset parameters and load initial chunk for the current page
     setLeavesState([]);
     setOffsetState(0);
     setHasMoreState(true);
@@ -476,8 +470,6 @@ function LeavesPage() {
     manualSorting: true, // Server-side sorting
   });
 
-  const totalPages = Math.ceil(totalCount / pageSize);
-
   return (
     <Layout>
       <Box sx={{ display: "flex", flexDirection: "column", gap: 4 }}>
@@ -620,197 +612,18 @@ function LeavesPage() {
               </FormControl>
             </Box>
 
-            <TableContainer
-              component={Paper}
-              sx={{
-                maxHeight: 520,
-                overflow: "auto",
-                border: "1px solid rgba(255, 255, 255, 0.08)",
-                borderRadius: "8px",
-                backgroundColor: "background.paper",
-                boxShadow: "none",
-                "&::-webkit-scrollbar": {
-                  width: "6px",
-                  height: "6px",
-                },
-                "&::-webkit-scrollbar-track": {
-                  background: "rgba(255,255,255,0.01)",
-                },
-                "&::-webkit-scrollbar-thumb": {
-                  background: "rgba(255,255,255,0.1)",
-                  borderRadius: "3px",
-                },
-                "&::-webkit-scrollbar-thumb:hover": {
-                  background: "rgba(255,255,255,0.2)",
-                },
-              }}
-              onScroll={(e) => {
-                const target = e.currentTarget;
-                const nearBottom =
-                  target.scrollHeight - target.scrollTop - target.clientHeight < 100;
-
-                if (
-                  nearBottom &&
-                  !loadingRef.current &&
-                  hasMoreRef.current &&
-                  leavesRef.current.length < pageSizeRef.current
-                ) {
-                  loadMore();
-                }
-              }}
-            >
-              <Table stickyHeader>
-                <TableHead>
-                  {table.getHeaderGroups().map((headerGroup) => (
-                    <TableRow key={headerGroup.id}>
-                      {headerGroup.headers.map((header) => {
-                        const canSort = header.column.getCanSort();
-                        const isSorted = header.column.getIsSorted();
-
-                        return (
-                          <TableCell
-                            key={header.id}
-                            onClick={canSort ? header.column.getToggleSortingHandler() : undefined}
-                            sx={{
-                              fontWeight: 700,
-                              backgroundColor: "#18181b",
-                              borderBottom: "2px solid rgba(255,255,255,0.08)",
-                              cursor: canSort ? "pointer" : "default",
-                              userSelect: "none",
-                              "&:hover": canSort
-                                ? {
-                                  backgroundColor: "rgba(255, 255, 255, 0.03)",
-                                }
-                                : {},
-                              transition: "background-color 0.15s",
-                              textAlign: header.id === "actions" ? "center" : "left",
-                            }}
-                          >
-                            <Box
-                              sx={{
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: header.id === "actions" ? "center" : "flex-start",
-                                gap: 0.5,
-                              }}
-                            >
-                              {flexRender(
-                                header.column.columnDef.header,
-                                header.getContext()
-                              )}
-
-                              {canSort && (
-                                <Box sx={{ display: "inline-flex", color: "primary.light" }}>
-                                  {isSorted === "asc" && " ▴"}
-                                  {isSorted === "desc" && " ▾"}
-                                  {!isSorted && (
-                                    <Typography
-                                      component="span"
-                                      variant="caption"
-                                      sx={{ opacity: 0.2, fontSize: "0.7rem", ml: 0.5 }}
-                                    >
-                                      ↕
-                                    </Typography>
-                                  )}
-                                </Box>
-                              )}
-                            </Box>
-                          </TableCell>
-                        );
-                      })}
-                    </TableRow>
-                  ))}
-                </TableHead>
-                <TableBody>
-                  {table.getRowModel().rows.map((row) => (
-                    <TableRow
-                      key={row.id}
-                      hover
-                      sx={{
-                        "&:hover": {
-                          backgroundColor: "rgba(255, 255, 255, 0.02) !important",
-                        },
-                        transition: "background-color 0.15s ease-in-out",
-                      }}
-                    >
-                      {row.getVisibleCells().map((cell) => (
-                        <TableCell
-                          key={cell.id}
-                          sx={{
-                            textAlign: cell.column.id === "actions" ? "center" : "left",
-                            color: cell.column.id === "actions" ? "inherit" : "text.secondary",
-                          }}
-                        >
-                          {flexRender(
-                            cell.column.columnDef.cell,
-                            cell.getContext()
-                          )}
-                        </TableCell>
-                      ))}
-                    </TableRow>
-                  ))}
-
-                  {leaves.length === 0 && !loading && (
-                    <TableRow>
-                      <TableCell
-                        colSpan={table.getAllLeafColumns().filter((c) => c.getIsVisible()).length}
-                        align="center"
-                        sx={{ py: 8 }}
-                      >
-                        <Typography variant="body1" color="text.secondary">
-                          No leave requests found.
-                        </Typography>
-                      </TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
-            </TableContainer>
-
-            {loading && (
-              <Box
-                sx={{
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  py: 3,
-                  gap: 2,
-                }}
-              >
-                <CircularProgress size={22} thickness={5} />
-                <Typography variant="body2" color="text.secondary">
-                  Loading leaves...
-                </Typography>
-              </Box>
-            )}
-
-            {!hasMore && leaves.length > 0 && (
-              <Box sx={{ display: "flex", justifyContent: "center", py: 2 }}>
-                <Typography variant="caption" color="text.secondary" sx={{ letterSpacing: 0.5 }}>
-                  Page {page} loaded (showing {leaves.length} items)
-                </Typography>
-              </Box>
-            )}
-
-            {totalPages > 1 && (
-              <Box
-                sx={{
-                  display: "flex",
-                  justifyContent: "center",
-                  mt: 3,
-                  pt: 2,
-                  borderTop: "1px solid",
-                  borderColor: "divider",
-                }}
-              >
-                <Pagination
-                  count={totalPages}
-                  page={page}
-                  onChange={(_, val) => setPage(val)}
-                  color="primary"
-                />
-              </Box>
-            )}
+            <InfiniteScrollTable
+              table={table}
+              loading={loading}
+              hasMore={hasMore}
+              pageSize={pageSize}
+              page={page}
+              totalCount={totalCount}
+              onPageChange={setPage}
+              onLoadMore={loadMore}
+              emptyMessage="No leave requests found."
+              loadingMessage="Loading leaves..."
+            />
           </CardContent>
         </Card>
       </Box>

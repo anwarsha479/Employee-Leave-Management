@@ -1,5 +1,6 @@
 import { createTheme } from "@mui/material/styles";
 
+// Generates the theme configuration for the application based on the mode (light/dark)
 const getTheme = (
   mode: "light" | "dark",
 ) =>
@@ -8,6 +9,7 @@ const getTheme = (
       mode,
       primary: {
         main: "#6366f1",
+        // Adjusted to Indigo 600 in light mode for higher contrast and better text visibility
         light: mode === "dark" ? "#818cf8" : "#4f46e5",
         dark: "#4f46e5",
         contrastText: "#ffffff",
@@ -53,6 +55,7 @@ const getTheme = (
       borderRadius: 12,
     },
     components: {
+      // Global button hover transitions
       MuiButton: {
         styleOverrides: {
           root: {
@@ -64,6 +67,7 @@ const getTheme = (
           },
         },
       },
+      // Glassmorphism card styles that dynamically adjust to light/dark modes
       MuiCard: {
         styleOverrides: {
           root: {
@@ -81,6 +85,7 @@ const getTheme = (
           },
         },
       },
+      // Table header overrides to force proper contrast in light/dark transitions
       MuiTableCell: {
         styleOverrides: {
           head: {
@@ -97,6 +102,7 @@ const getTheme = (
           },
         },
       },
+      // Inputs and browser autofill coloring compatibility updates
       MuiOutlinedInput: {
         styleOverrides: {
           root: {

@@ -94,136 +94,136 @@ function DashboardPage() {
   const statItems =
     role === "ADMIN"
       ? [
-          {
-            label: "Total Employees",
-            value:
-              (stats as DashboardStats)
-                .totalEmployees,
-            color: "#6366f1",
-          },
-          {
-            label: "Total Departments",
-            value:
-              (stats as DashboardStats)
-                .totalDepartments,
-            color: "#a855f7",
-          },
-          {
-            label: "Total Leaves",
-            value:
-              (stats as DashboardStats)
-                .totalLeaves,
-            color: "#3b82f6",
-          },
-          {
-            label: "Pending Leaves",
-            value:
-              (stats as DashboardStats)
-                .pendingLeaves,
-            color: "#ff9800",
-          },
-          {
-            label: "Approved Leaves",
-            value:
-              (stats as DashboardStats)
-                .approvedLeaves,
-            color: "#10b981",
-          },
-          {
-            label: "Rejected Leaves",
-            value:
-              (stats as DashboardStats)
-                .rejectedLeaves,
-            color: "#ef4444",
-          },
-        ]
+        {
+          label: "Total Employees",
+          value:
+            (stats as DashboardStats)
+              .totalEmployees,
+          color: "#6366f1",
+        },
+        {
+          label: "Total Departments",
+          value:
+            (stats as DashboardStats)
+              .totalDepartments,
+          color: "#a855f7",
+        },
+        {
+          label: "Total Leaves",
+          value:
+            (stats as DashboardStats)
+              .totalLeaves,
+          color: "#3b82f6",
+        },
+        {
+          label: "Pending Leaves",
+          value:
+            (stats as DashboardStats)
+              .pendingLeaves,
+          color: "#ff9800",
+        },
+        {
+          label: "Approved Leaves",
+          value:
+            (stats as DashboardStats)
+              .approvedLeaves,
+          color: "#10b981",
+        },
+        {
+          label: "Rejected Leaves",
+          value:
+            (stats as DashboardStats)
+              .rejectedLeaves,
+          color: "#ef4444",
+        },
+      ]
       : [
-          {
-            label: "Applied Leaves",
-            value:
-              (
-                stats as EmployeeDashboardStats
-              ).appliedLeaves,
-            color: "#3b82f6",
-          },
-          {
-            label: "Approved Leaves",
-            value:
-              (
-                stats as EmployeeDashboardStats
-              ).approvedLeaves,
-            color: "#10b981",
-          },
-          {
-            label: "Rejected Leaves",
-            value:
-              (
-                stats as EmployeeDashboardStats
-              ).rejectedLeaves,
-            color: "#ef4444",
-          },
-          {
-            label: "Remaining Leaves",
-            value:
-              (
-                stats as EmployeeDashboardStats
-              ).remainingLeaves,
-            color: "#6366f1",
-          },
-        ];
+        {
+          label: "Applied Leaves",
+          value:
+            (
+              stats as EmployeeDashboardStats
+            ).appliedLeaves,
+          color: "#3b82f6",
+        },
+        {
+          label: "Approved Leaves",
+          value:
+            (
+              stats as EmployeeDashboardStats
+            ).approvedLeaves,
+          color: "#10b981",
+        },
+        {
+          label: "Rejected Leaves",
+          value:
+            (
+              stats as EmployeeDashboardStats
+            ).rejectedLeaves,
+          color: "#ef4444",
+        },
+        {
+          label: "Remaining Leaves",
+          value:
+            (
+              stats as EmployeeDashboardStats
+            ).remainingLeaves,
+          color: "#6366f1",
+        },
+      ];
 
   const chartData =
     role === "ADMIN"
       ? [
-          {
-            name: "Pending",
-            value:
-              (stats as DashboardStats)
-                .pendingLeaves,
-          },
-          {
-            name: "Approved",
-            value:
-              (stats as DashboardStats)
-                .approvedLeaves,
-          },
-          {
-            name: "Rejected",
-            value:
-              (stats as DashboardStats)
-                .rejectedLeaves,
-          },
-        ]
+        {
+          name: "Pending",
+          value:
+            (stats as DashboardStats)
+              .pendingLeaves,
+        },
+        {
+          name: "Approved",
+          value:
+            (stats as DashboardStats)
+              .approvedLeaves,
+        },
+        {
+          name: "Rejected",
+          value:
+            (stats as DashboardStats)
+              .rejectedLeaves,
+        },
+      ]
       : [
-          {
-            name: "Applied",
-            value:
-              (
-                stats as EmployeeDashboardStats
-              ).appliedLeaves,
-          },
-          {
-            name: "Approved",
-            value:
-              (
-                stats as EmployeeDashboardStats
-              ).approvedLeaves,
-          },
-          {
-            name: "Rejected",
-            value:
-              (
-                stats as EmployeeDashboardStats
-              ).rejectedLeaves,
-          },
-          {
-            name: "Remaining",
-            value:
-              (
-                stats as EmployeeDashboardStats
-              ).remainingLeaves,
-          },
-        ];
+        {
+          name: "Applied",
+          value:
+            (
+              stats as EmployeeDashboardStats
+            ).appliedLeaves,
+        },
+        {
+          name: "Approved",
+          value:
+            (
+              stats as EmployeeDashboardStats
+            ).approvedLeaves,
+        },
+        {
+          name: "Rejected",
+          value:
+            (
+              stats as EmployeeDashboardStats
+            ).rejectedLeaves,
+        },
+        {
+          name: "Remaining",
+          value:
+            (
+              stats as EmployeeDashboardStats
+            ).remainingLeaves,
+        },
+      ];
 
   return (
     <Layout>
