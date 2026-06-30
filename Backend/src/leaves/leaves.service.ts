@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Leave } from './entities/leave.entity';
@@ -16,7 +20,7 @@ export class LeavesService {
 
     @InjectRepository(Employee)
     private readonly employeeRepository: Repository<Employee>,
-  ) { }
+  ) {}
 
   async create(
     createLeaveDto: CreateLeaveDto,
@@ -49,7 +53,22 @@ export class LeavesService {
     if (!employee) {
       throw new NotFoundException('Employee not found');
     }
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
 
+    const startDate = new Date(createLeaveDto.startDate);
+    startDate.setHours(0, 0, 0, 0);
+
+    if (startDate < today) {
+      throw new BadRequestException('Cannot apply leave for past dates');
+    }
+
+    const endDate = new Date(createLeaveDto.endDate);
+    endDate.setHours(0, 0, 0, 0);
+
+    if (endDate < startDate) {
+      throw new BadRequestException('End date cannot be before start date');
+    }
     const leave = this.leaveRepository.create({
       leaveType: createLeaveDto.leaveType,
       startDate: createLeaveDto.startDate,
@@ -60,7 +79,6 @@ export class LeavesService {
 
     return this.leaveRepository.save(leave);
   }
-
 
   async findAll(
     page = 1,
@@ -78,59 +96,35 @@ export class LeavesService {
     const skip = offset;
     const take = chunk;
 
-    const query =
-      this.leaveRepository.createQueryBuilder(
-        'leave',
-      );
+    const query = this.leaveRepository.createQueryBuilder('leave');
 
-    query.leftJoinAndSelect(
-      'leave.employee',
-      'employee',
-    );
+    query.leftJoinAndSelect('leave.employee', 'employee');
 
-    query.leftJoinAndSelect(
-      'employee.user',
-      'user',
-    );
+    query.leftJoinAndSelect('employee.user', 'user');
 
     if (search) {
-      query.andWhere(
-        'LOWER(employee.name) LIKE LOWER(:search)',
-        {
-          search: `%${search}%`,
-        },
-      );
+      query.andWhere('LOWER(employee.name) LIKE LOWER(:search)', {
+        search: `%${search}%`,
+      });
     }
 
     if (status) {
-      query.andWhere(
-        'leave.status = :status',
-        {
-          status,
-        },
-      );
+      query.andWhere('leave.status = :status', {
+        status,
+      });
     }
 
     if (employeeId) {
-      query.andWhere(
-        'employee.id = :employeeId',
-        {
-          employeeId,
-        },
-      );
+      query.andWhere('employee.id = :employeeId', {
+        employeeId,
+      });
     }
 
     // Employee can only see their own leaves
-    if (
-      role === 'EMPLOYEE' &&
-      userId
-    ) {
-      query.andWhere(
-        'user.id = :userId',
-        {
-          userId,
-        },
-      );
+    if (role === 'EMPLOYEE' && userId) {
+      query.andWhere('user.id = :userId', {
+        userId,
+      });
     }
 
     const sortColumns = {
@@ -149,12 +143,9 @@ export class LeavesService {
       query.orderBy('leave.createdAt', 'DESC');
     }
 
-    query
-      .skip(skip)
-      .take(take);
+    query.skip(skip).take(take);
 
-    const [data, total] =
-      await query.getManyAndCount();
+    const [data, total] = await query.getManyAndCount();
 
     return {
       data,
@@ -165,7 +156,6 @@ export class LeavesService {
       hasMore: offset + data.length < total,
     };
   }
-
 
   async findOne(id: string): Promise<Leave> {
     const leave = await this.leaveRepository.findOne({
@@ -192,11 +182,8 @@ export class LeavesService {
     return this.leaveRepository.save(leave);
   }
 
-  async exportLeaves(
-  res: Response,
-) {
-  const leaves =
-    await this.leaveRepository.find({
+  async exportLeaves(res: Response) {
+    const leaves = await this.leaveRepository.find({
       relations: {
         employee: true,
       },
@@ -205,76 +192,66 @@ export class LeavesService {
       },
     });
 
-  const workbook =
-    new ExcelJS.Workbook();
+    const workbook = new ExcelJS.Workbook();
 
-  const worksheet =
-    workbook.addWorksheet(
-      'Leave Requests',
+    const worksheet = workbook.addWorksheet('Leave Requests');
+
+    worksheet.columns = [
+      {
+        header: 'Employee',
+        key: 'employee',
+        width: 25,
+      },
+      {
+        header: 'Leave Type',
+        key: 'leaveType',
+        width: 20,
+      },
+      {
+        header: 'Start Date',
+        key: 'startDate',
+        width: 20,
+      },
+      {
+        header: 'End Date',
+        key: 'endDate',
+        width: 20,
+      },
+      {
+        header: 'Reason',
+        key: 'reason',
+        width: 40,
+      },
+      {
+        header: 'Status',
+        key: 'status',
+        width: 20,
+      },
+    ];
+
+    leaves.forEach((leave) => {
+      worksheet.addRow({
+        employee: leave.employee?.name,
+        leaveType: leave.leaveType,
+        startDate: leave.startDate,
+        endDate: leave.endDate,
+        reason: leave.reason,
+        status: leave.status,
+      });
+    });
+
+    res.setHeader(
+      'Content-Type',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
     );
 
-  worksheet.columns = [
-    {
-      header: 'Employee',
-      key: 'employee',
-      width: 25,
-    },
-    {
-      header: 'Leave Type',
-      key: 'leaveType',
-      width: 20,
-    },
-    {
-      header: 'Start Date',
-      key: 'startDate',
-      width: 20,
-    },
-    {
-      header: 'End Date',
-      key: 'endDate',
-      width: 20,
-    },
-    {
-      header: 'Reason',
-      key: 'reason',
-      width: 40,
-    },
-    {
-      header: 'Status',
-      key: 'status',
-      width: 20,
-    },
-  ];
+    res.setHeader(
+      'Content-Disposition',
+      'attachment; filename=leave-requests.xlsx',
+    );
 
-  leaves.forEach((leave) => {
-    worksheet.addRow({
-      employee:
-        leave.employee?.name,
-      leaveType:
-        leave.leaveType,
-      startDate:
-        leave.startDate,
-      endDate:
-        leave.endDate,
-      reason:
-        leave.reason,
-      status:
-        leave.status,
-    });
-  });
+    await workbook.xlsx.write(res);
 
-  res.setHeader(
-    'Content-Type',
-    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-  );
-
-  res.setHeader(
-    'Content-Disposition',
-    'attachment; filename=leave-requests.xlsx',
-  );
-
-  await workbook.xlsx.write(res);
-
-  res.end();
-}
+    res.end();
+  }
 }

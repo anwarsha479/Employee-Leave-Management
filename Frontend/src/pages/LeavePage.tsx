@@ -500,13 +500,16 @@ function LeavesPage() {
               Apply Leave
             </Button>
           )}
+          {role==="ADMIN"&&(
           <Button
             variant="outlined"
             onClick={handleExport}
           >
             Export Excel
           </Button>
+          )}
         </Box>
+          
 
         {role === "EMPLOYEE" && (
           <LeaveForm

@@ -26,7 +26,10 @@ function DepartmentForm({
   department,
 }: DepartmentFormProps) {
   const [name, setName] = useState("");
+  const [nameError, setNameError] = useState("");
+
   const [description, setDescription] = useState("");
+  const [descriptionError, setDescriptionError] = useState("");
 
   useEffect(() => {
     if (department) {
@@ -41,6 +44,25 @@ function DepartmentForm({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
+    setNameError("");
+    setDescriptionError("");
+
+    let hasError = false;
+
+    if (!name.trim()) {
+      setNameError("Department name is required");
+      hasError = true;
+    }
+
+    if (!description.trim()) {
+      setDescriptionError("Description is required");
+      hasError = true;
+    }
+
+    if (hasError) {
+      return;
+    }
+
     onSubmit(name, description);
 
     setName("");
@@ -50,7 +72,15 @@ function DepartmentForm({
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
-      <DialogTitle sx={{ m: 0, p: 2, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+      <DialogTitle
+        sx={{
+          m: 0,
+          p: 2,
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
         <Typography variant="h6" component="span" sx={{ fontWeight: 750 }}>
           {department ? "Edit Department Details" : "Create New Department"}
         </Typography>
@@ -70,19 +100,32 @@ function DepartmentForm({
             <TextField
               label="Department Name"
               value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-              fullWidth
-            />
+              onChange={(e) => {
+                setName(e.target.value);
 
+                if (e.target.value.trim()) {
+                  setNameError("");
+                }
+              }}
+              fullWidth
+              error={!!nameError}
+              helperText={nameError}
+            />
             <TextField
               label="Description"
               value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              required
+              onChange={(e) => {
+                setDescription(e.target.value);
+
+                if (e.target.value.trim()) {
+                  setDescriptionError("");
+                }
+              }}
               fullWidth
               multiline
               rows={4}
+              error={!!descriptionError}
+              helperText={descriptionError}
             />
           </Box>
         </DialogContent>

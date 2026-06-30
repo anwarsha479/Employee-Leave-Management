@@ -28,9 +28,49 @@ function LeaveForm({ open, onClose, onSubmit }: LeaveFormProps) {
   const [leaveType, setLeaveType] = useState("CASUAL");
   const [endDate, setEndDate] = useState("");
   const [reason, setReason] = useState("");
+  const [startDateError, setStartDateError] = useState("");
+
+  const [endDateError, setEndDateError] = useState("");
+
+  const [reasonError, setReasonError] = useState("");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
+    setStartDateError("");
+    setEndDateError("");
+    setReasonError("");
+
+    let hasError = false;
+
+    if (!startDate) {
+      setStartDateError("Start date is required");
+      hasError = true;
+    }
+
+    if (!endDate) {
+      setEndDateError("End date is required");
+      hasError = true;
+    }
+    const today = new Date().toISOString().split("T")[0];
+
+    if (startDate && startDate < today) {
+      setStartDateError("Cannot apply leave for past dates");
+      hasError = true;
+    }
+    if (startDate && endDate && endDate < startDate) {
+      setEndDateError("End date cannot be before start date");
+      hasError = true;
+    }
+
+    if (!reason.trim()) {
+      setReasonError("Reason is required");
+      hasError = true;
+    }
+
+    if (hasError) {
+      return;
+    }
 
     onSubmit({
       leaveType,
@@ -48,7 +88,15 @@ function LeaveForm({ open, onClose, onSubmit }: LeaveFormProps) {
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
-      <DialogTitle sx={{ m: 0, p: 2, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+      <DialogTitle
+        sx={{
+          m: 0,
+          p: 2,
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
         <Typography variant="h6" component="span" sx={{ fontWeight: 750 }}>
           Apply for Leave
         </Typography>
@@ -71,59 +119,76 @@ function LeaveForm({ open, onClose, onSubmit }: LeaveFormProps) {
               <Select
                 value={leaveType}
                 label="Leave Type"
-                onChange={(e) =>
-                  setLeaveType(e.target.value)
-                }
+                onChange={(e) => setLeaveType(e.target.value)}
               >
-                <MenuItem value="CASUAL">
-                  Casual Leave
-                </MenuItem>
+                <MenuItem value="CASUAL">Casual Leave</MenuItem>
 
-                <MenuItem value="SICK">
-                  Sick Leave
-                </MenuItem>
+                <MenuItem value="SICK">Sick Leave</MenuItem>
 
-                <MenuItem value="WORK_FROM_HOME">
-                  Work From Home
-                </MenuItem>
+                <MenuItem value="WORK_FROM_HOME">Work From Home</MenuItem>
               </Select>
             </FormControl>
             <TextField
               label="Start Date"
               type="date"
               value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
-              required
+              onChange={(e) => {
+                setStartDate(e.target.value);
+
+                if (e.target.value) {
+                  setStartDateError("");
+                }
+              }}
               fullWidth
+              error={!!startDateError}
+              helperText={startDateError}
               slotProps={{
                 inputLabel: {
                   shrink: true,
                 },
+                htmlInput: {
+                  min: new Date().toISOString().split("T")[0],
+                },
               }}
             />
-
             <TextField
               label="End Date"
               type="date"
               value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
-              required
+              onChange={(e) => {
+                setEndDate(e.target.value);
+
+                if (e.target.value) {
+                  setEndDateError("");
+                }
+              }}
               fullWidth
+              error={!!endDateError}
+              helperText={endDateError}
               slotProps={{
                 inputLabel: {
                   shrink: true,
                 },
+                htmlInput: {
+                  min: startDate || new Date().toISOString().split("T")[0],
+                },
               }}
             />
-
             <TextField
               label="Reason for Leave"
               value={reason}
-              onChange={(e) => setReason(e.target.value)}
-              required
+              onChange={(e) => {
+                setReason(e.target.value);
+
+                if (e.target.value.trim()) {
+                  setReasonError("");
+                }
+              }}
               fullWidth
               multiline
               rows={4}
+              error={!!reasonError}
+              helperText={reasonError}
             />
           </Box>
         </DialogContent>
