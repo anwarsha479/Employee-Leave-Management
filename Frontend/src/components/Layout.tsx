@@ -16,7 +16,13 @@ function Layout({ children }: LayoutProps) {
   };
 
   return (
-    <Box sx={{ display: "flex", minHeight: "100vh", backgroundColor: "background.default" }}>
+    <Box
+      sx={{
+        display: "flex",
+        minHeight: "100vh",
+        backgroundColor: "background.default",
+      }}
+    >
       <Sidebar collapsed={collapsed} />
 
       <Box
@@ -27,7 +33,7 @@ function Layout({ children }: LayoutProps) {
           minWidth: 0, // Prevent flex item overflow
         }}
       >
-        <Topbar toggleSidebar={toggleSidebar} />
+        <Topbar toggleSidebar={toggleSidebar} collapsed={collapsed} />
 
         <Box
           component="main"

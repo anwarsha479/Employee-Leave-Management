@@ -51,9 +51,12 @@ function Sidebar({ collapsed }: SidebarProps) {
     <Box
       sx={{
         width: collapsed ? 80 : 260,
-        minHeight: "100vh",
+        height: "100vh",
+        position: "sticky",
+        top: 0,
         backgroundColor: "background.paper",
-        borderRight: "1px solid rgba(255, 255, 255, 0.08)",
+        borderRight: "1px solid",
+        borderColor: "divider",
         display: "flex",
         flexDirection: "column",
         transition: "width 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
@@ -67,7 +70,8 @@ function Sidebar({ collapsed }: SidebarProps) {
           display: "flex",
           alignItems: "center",
           gap: 2,
-          borderBottom: "1px solid rgba(255, 255, 255, 0.08)",
+          borderBottom: "1px solid",
+          borderColor: "divider",
           minHeight: 80,
           boxSizing: "border-box",
         }}
@@ -172,7 +176,7 @@ function Sidebar({ collapsed }: SidebarProps) {
       </List>
 
       {/* Logout Action */}
-      <Box sx={{ p: 2, borderTop: "1px solid rgba(255, 255, 255, 0.08)" }}>
+      <Box sx={{ p: 2, pb: 4, borderTop: "1px solid", borderColor: "divider" }}>
         <Button
           variant="contained"
           onClick={handleLogout}
