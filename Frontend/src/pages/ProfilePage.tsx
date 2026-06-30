@@ -29,6 +29,7 @@ import {
   getProfile,
   updateProfile,
   changePassword,
+  getProfileImageUrl
 } from "../services/profile.service";
 
 function ProfilePage() {
@@ -241,11 +242,7 @@ function ProfilePage() {
               }}
             >
               <Avatar
-                src={
-                  profile?.profileImage
-                    ? `http://localhost:3000/uploads/${profile.profileImage}`
-                    : undefined
-                }
+                src={getProfileImageUrl(profile?.profileImage)}
                 sx={{
                   width: 100,
                   height: 100,

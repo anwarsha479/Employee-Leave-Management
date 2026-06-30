@@ -14,3 +14,9 @@ export const changePassword = (data: {
 }) => {
   return api.put("/auth/change-password", data);
 };
+
+export const getProfileImageUrl = (image?: string) => {
+  if (!image) return undefined;
+
+  return `${api.defaults.baseURL}/uploads/${image}`;
+};
