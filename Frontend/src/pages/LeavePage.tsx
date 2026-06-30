@@ -16,6 +16,7 @@ import {
   Checkbox,
   FormControlLabel,
 } from "@mui/material";
+import { useSearchParams } from "react-router-dom";
 import SearchIcon from "@mui/icons-material/Search";
 import AddIcon from "@mui/icons-material/Add";
 import ViewColumnIcon from "@mui/icons-material/ViewColumn";
@@ -33,7 +34,7 @@ import {
   createLeave,
   approveLeave,
   rejectLeave,
-  exportLeaves
+  exportLeaves,
 } from "../services/leave.service";
 
 import { getEmployees } from "../services/employee.service";
@@ -62,17 +63,28 @@ function LeavesPage() {
   const [totalCount, setTotalCount] = useState(0);
 
   const role = localStorage.getItem("role");
+  const [searchParams] = useSearchParams();
+
+  const statusFromUrl = searchParams.get("status") || "";
+
+  const [status, setStatus] = useState(statusFromUrl);
+
+  useEffect(() => {
+    setStatus(statusFromUrl);
+  }, [statusFromUrl]);
 
   // TanStack Table states
   const [sorting, setSorting] = useState<SortingState>([]);
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => {
-    try {
-      const stored = localStorage.getItem("lms_leave_columns_visibility");
-      return stored ? JSON.parse(stored) : {};
-    } catch {
-      return {};
-    }
-  });
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(
+    () => {
+      try {
+        const stored = localStorage.getItem("lms_leave_columns_visibility");
+        return stored ? JSON.parse(stored) : {};
+      } catch {
+        return {};
+      }
+    },
+  );
 
   // Columns menu state
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -135,7 +147,7 @@ function LeavesPage() {
   useEffect(() => {
     localStorage.setItem(
       "lms_leave_columns_visibility",
-      JSON.stringify(columnVisibility)
+      JSON.stringify(columnVisibility),
     );
   }, [columnVisibility]);
 
@@ -165,7 +177,7 @@ function LeavesPage() {
       const currentPage = pageRef.current;
       const currentPageSize = pageSizeRef.current;
       const baseOffset = (currentPage - 1) * currentPageSize;
-      
+
       const currentOffsetInsidePage = reset ? 0 : offsetRef.current;
       const currentLeaves = reset ? [] : leavesRef.current;
       const currentSearch = debouncedSearchRef.current;
@@ -193,7 +205,8 @@ function LeavesPage() {
         chunkToFetch,
         sortBy,
         sortOrder,
-        { signal: controller.signal }
+        status,
+        { signal: controller.signal },
       );
 
       if (controller.signal.aborted) return;
@@ -217,7 +230,9 @@ function LeavesPage() {
         updatedLeaves = newLeaves;
       } else {
         const existingIds = new Set(currentLeaves.map((l) => l.id));
-        const filteredNew = newLeaves.filter((l: any) => !existingIds.has(l.id));
+        const filteredNew = newLeaves.filter(
+          (l: any) => !existingIds.has(l.id),
+        );
         updatedLeaves = [...currentLeaves, ...filteredNew];
       }
 
@@ -228,7 +243,11 @@ function LeavesPage() {
       const reachedPageSize = updatedLeaves.length >= currentPageSize;
       setHasMoreState(responseHasMore && !reachedPageSize);
     } catch (error: any) {
-      if (error.name === "CanceledError" || error.name === "AbortError" || error.message === "canceled") {
+      if (
+        error.name === "CanceledError" ||
+        error.name === "AbortError" ||
+        error.message === "canceled"
+      ) {
         console.log("Fetch call aborted");
       } else {
         console.error("Error fetching leaves:", error);
@@ -316,7 +335,7 @@ function LeavesPage() {
         abortControllerRef.current.abort();
       }
     };
-  }, [debouncedSearch, pageSize, page, sorting]);
+  }, [debouncedSearch, pageSize, page, sorting, status]);
 
   useEffect(() => {
     fetchEmployees();
@@ -331,17 +350,12 @@ function LeavesPage() {
     try {
       const response = await exportLeaves();
 
-      const url = window.URL.createObjectURL(
-        new Blob([response.data]),
-      );
+      const url = window.URL.createObjectURL(new Blob([response.data]));
 
-      const link = document.createElement('a');
+      const link = document.createElement("a");
 
       link.href = url;
-      link.setAttribute(
-        'download',
-        'leave-requests.xlsx',
-      );
+      link.setAttribute("download", "leave-requests.xlsx");
 
       document.body.appendChild(link);
       link.click();
@@ -500,16 +514,12 @@ function LeavesPage() {
               Apply Leave
             </Button>
           )}
-          {role==="ADMIN"&&(
-          <Button
-            variant="outlined"
-            onClick={handleExport}
-          >
-            Export Excel
-          </Button>
+          {role === "ADMIN" && (
+            <Button variant="outlined" onClick={handleExport}>
+              Export Excel
+            </Button>
           )}
         </Box>
-          
 
         {role === "EMPLOYEE" && (
           <LeaveForm
@@ -574,13 +584,20 @@ function LeavesPage() {
                     },
                   }}
                 >
-                  <Typography variant="subtitle2" sx={{ px: 2, py: 1, fontWeight: 700 }}>
+                  <Typography
+                    variant="subtitle2"
+                    sx={{ px: 2, py: 1, fontWeight: 700 }}
+                  >
                     Toggle Columns
                   </Typography>
                   {table.getAllLeafColumns().map((column) => {
                     const isActions = column.id === "actions";
                     return (
-                      <MenuItem key={column.id} disabled={isActions} sx={{ py: 0.5 }}>
+                      <MenuItem
+                        key={column.id}
+                        disabled={isActions}
+                        sx={{ py: 0.5 }}
+                      >
                         <FormControlLabel
                           control={
                             <Checkbox

@@ -55,6 +55,7 @@ export class LeavesController {
     @Query('search') search?: string,
     @Query('sortBy') sortBy?: string,
     @Query('sortOrder') sortOrder?: 'ASC' | 'DESC',
+    @Query('status')status?:string,
   ) {
     const role = req.user.role;
     const userId = req.user.userId;
@@ -69,6 +70,7 @@ export class LeavesController {
       userId,
       sortBy,
       sortOrder,
+      status,
     );
   }
   @Get('export')
