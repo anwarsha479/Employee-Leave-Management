@@ -51,24 +51,20 @@ export class User {
   })
   updatedAt!: Date;
 
-  @OneToOne(
-    () => Employee,
-    (employee) => employee.user,
-  )
+  @OneToOne(() => Employee, (employee) => employee.user)
   employee?: Employee;
 
-  //  One-time token used for password reset.
+  // One-time password (OTP) used for password reset/change password.
   @Column({
     type: 'varchar',
-    length: 255,
+    length: 6,
     nullable: true,
   })
-  resetToken?: string;
+  otp?: string;
 
-  // Expiration time for the reset token.
   @Column({
     type: 'timestamp',
     nullable: true,
   })
-  resetTokenExpiry?: Date;
+  otpExpiry?: Date;
 }

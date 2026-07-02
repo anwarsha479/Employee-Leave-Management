@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate, Link as RouterLink } from "react-router-dom";
-import { forgotPassword } from "../services/auth.service";
+import { forgotPassword, resetPassword } from "../services/auth.service";
+
 import {
   Box,
   Card,
@@ -9,22 +10,77 @@ import {
   TextField,
   Button,
   Container,
+  Snackbar,
+  Alert,
   Link,
   Avatar,
 } from "@mui/material";
+
 import HelpIcon from "@mui/icons-material/Help";
 
 function ForgotPasswordPage() {
-  const [email, setEmail] = useState("");
   const navigate = useNavigate();
 
-  const handleSubmit = async () => {
+  const [email, setEmail] = useState("");
+  const [otpSent, setOtpSent] = useState(false);
+
+  const [otp, setOtp] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+
+  const [snackbarSeverity, setSnackbarSeverity] = useState<"success" | "error">(
+    "success",
+  );
+
+  const handleSendOtp = async () => {
+    console.log("Email value:", email);
+
     try {
-      const response = await forgotPassword(email);
-      alert(`Reset Token: ${response.data.resetToken}`);
-      navigate("/reset-password");
-    } catch (error) {
-      alert("Something went wrong");
+      await forgotPassword(email.trim());
+
+      setSnackbarMessage("OTP sent to your email.");
+      setSnackbarSeverity("success");
+      setSnackbarOpen(true);
+      setOtpSent(true);
+    } catch (error: any) {
+      console.error(error);
+
+      setSnackbarMessage(
+        error.response?.data?.message || "Failed to send OTP.",
+      );
+      setSnackbarSeverity("error");
+      setSnackbarOpen(true);
+    }
+  };
+
+  const handleResetPassword = async () => {
+    if (password !== confirmPassword) {
+      setSnackbarMessage("Passwords do not match");
+      setSnackbarSeverity("error");
+      setSnackbarOpen(true);
+      return;
+    }
+
+    try {
+      await resetPassword(email, otp, password);
+
+      setSnackbarMessage("Password reset successfully");
+      setSnackbarSeverity("success");
+      setSnackbarOpen(true);
+
+      navigate("/");
+    } catch (error: any) {
+      console.error(error);
+
+      setSnackbarMessage(
+        error.response?.data?.message || "Invalid OTP or OTP expired",
+      );
+      setSnackbarSeverity("error");
+      setSnackbarOpen(true);
     }
   };
 
@@ -35,7 +91,8 @@ function ForgotPasswordPage() {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        background: "radial-gradient(circle at 50% 50%, #1e1b4b 0%, #09090b 100%)",
+        background:
+          "radial-gradient(circle at 50% 50%, #1e1b4b 0%, #09090b 100%)",
         py: 4,
         px: 2,
       }}
@@ -55,11 +112,12 @@ function ForgotPasswordPage() {
               bgcolor: "secondary.main",
               width: 56,
               height: 56,
-              boxShadow: "0 0 20px rgba(16, 185, 129, 0.5)",
+              boxShadow: "0 0 20px rgba(16,185,129,0.5)",
             }}
           >
             <HelpIcon sx={{ fontSize: 32 }} />
           </Avatar>
+
           <Typography
             component="h1"
             variant="h4"
@@ -67,13 +125,14 @@ function ForgotPasswordPage() {
               fontWeight: 800,
               mt: 2,
               textAlign: "center",
-              background: "linear-gradient(45deg, #818cf8 30%, #34d399 90%)",
+              background: "linear-gradient(45deg,#818cf8 30%,#34d399 90%)",
               WebkitBackgroundClip: "text",
               WebkitTextFillColor: "transparent",
             }}
           >
             Leave Management System
           </Typography>
+
           <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
             Recover your account password
           </Typography>
@@ -81,82 +140,116 @@ function ForgotPasswordPage() {
 
         <Card
           sx={{
-            background: "rgba(24, 24, 27, 0.65)",
+            background: "rgba(24,24,27,0.65)",
             backdropFilter: "blur(16px)",
-            border: "1px solid rgba(255, 255, 255, 0.08)",
-            boxShadow: "0 8px 32px 0 rgba(0, 0, 0, 0.4)",
+            border: "1px solid rgba(255,255,255,0.08)",
+            boxShadow: "0 8px 32px rgba(0,0,0,0.4)",
             borderRadius: 4,
           }}
         >
           <CardContent sx={{ p: 4 }}>
             <Typography
-              component="h2"
               variant="h5"
-              sx={{ fontWeight: 600, mb: 2 }}
+              sx={{
+                fontWeight: 700,
+                mb: 2,
+              }}
             >
               Forgot Password
             </Typography>
+
             <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-              Enter your email address and we will provide a reset token.
+              Enter your registered email address to receive an OTP.
             </Typography>
 
-            <Box component="div">
-              <TextField
-                margin="normal"
-                required
-                fullWidth
-                id="email"
-                label="Email Address"
-                name="email"
-                autoComplete="email"
-                autoFocus
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                sx={{ mb: 3 }}
-              />
+            <TextField
+              fullWidth
+              label="Email Address"
+              value={email}
+              onChange={(e) => setEmail(e.target.value.trim())}
+              sx={{ mb: 2 }}
+            />
+
+            {!otpSent ? (
               <Button
-                type="submit"
                 fullWidth
                 variant="contained"
                 size="large"
-                onClick={handleSubmit}
-                sx={{
-                  py: 1.5,
-                  fontSize: "1rem",
-                  fontWeight: 600,
-                  bgcolor: "primary.main",
-                  "&:hover": {
-                    bgcolor: "primary.dark",
-                  },
-                }}
+                onClick={handleSendOtp}
               >
-                Send Reset Link
+                Send OTP
               </Button>
+            ) : (
+              <>
+                <TextField
+                  fullWidth
+                  label="OTP"
+                  value={otp}
+                  onChange={(e) => setOtp(e.target.value)}
+                  sx={{ mt: 3 }}
+                />
 
-              <Box sx={{ mt: 3, display: "flex", justifyContent: "space-between" }}>
-                <Link
-                  component={RouterLink}
-                  to="/"
-                  variant="body2"
-                  color="primary.light"
-                  sx={{ textDecoration: "none", "&:hover": { textDecoration: "underline" } }}
+                <TextField
+                  fullWidth
+                  label="New Password"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  sx={{ mt: 2 }}
+                />
+
+                <TextField
+                  fullWidth
+                  label="Confirm Password"
+                  type="password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  sx={{ mt: 2 }}
+                />
+
+                <Button
+                  fullWidth
+                  variant="contained"
+                  size="large"
+                  sx={{ mt: 3 }}
+                  onClick={handleResetPassword}
                 >
-                  Back to Login
-                </Link>
-                <Link
-                  component={RouterLink}
-                  to="/reset-password"
-                  variant="body2"
-                  color="secondary.light"
-                  sx={{ textDecoration: "none", "&:hover": { textDecoration: "underline" } }}
-                >
-                  Have a token? Reset
-                </Link>
-              </Box>
+                  Reset Password
+                </Button>
+              </>
+            )}
+
+            <Box
+              sx={{
+                mt: 3,
+                textAlign: "center",
+              }}
+            >
+              <Link component={RouterLink} to="/" underline="hover">
+                Back to Login
+              </Link>
             </Box>
           </CardContent>
         </Card>
       </Container>
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={3000}
+        onClose={() => setSnackbarOpen(false)}
+        anchorOrigin={{
+          vertical: "top",
+          horizontal: "right",
+        }}
+      >
+        <Alert
+          severity={snackbarSeverity}
+          variant="filled"
+          onClose={() => setSnackbarOpen(false)}
+          sx={{ width: "100%" }}
+        >
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 }
