@@ -11,6 +11,8 @@ import {
   Chip,
   Button,
 } from "@mui/material";
+import { useAuth } from "../context/AuthContext";
+import { logout } from "../services/auth.service";
 
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import ApartmentIcon from "@mui/icons-material/Apartment";
@@ -26,13 +28,21 @@ interface SidebarProps {
 function Sidebar({ collapsed }: SidebarProps) {
   const navigate = useNavigate();
   const location = useLocation();
+  const { user } = useAuth();
 
-  const email = localStorage.getItem("email") || "admin@gmail.com";
-  const role = localStorage.getItem("role") || "ADMIN";
+  const email = user?.email ?? "";
+  const role = user?.role ?? "";
 
-  const handleLogout = () => {
-    localStorage.clear();
-    navigate("/");
+  const handleLogout = async () => {
+    try {
+      await logout();
+
+      navigate("/", { replace: true });
+
+      window.location.reload();
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
   };
 
   const isActive = (path: string) => {
@@ -40,11 +50,36 @@ function Sidebar({ collapsed }: SidebarProps) {
   };
 
   const menuItems = [
-    { text: "Dashboard", path: "/dashboard", icon: <DashboardIcon />, roles: ["ADMIN", "EMPLOYEE"] },
-    { text: "Departments", path: "/departments", icon: <ApartmentIcon />, roles: ["ADMIN"] },
-    { text: "Employees", path: "/employees", icon: <PeopleIcon />, roles: ["ADMIN"] },
-    { text: "Profile", path: "/profile", icon: <AccountCircleIcon />, roles: ["EMPLOYEE"] },
-    { text: "Leaves", path: "/leaves", icon: <EventNoteIcon />, roles: ["ADMIN", "EMPLOYEE"] },
+    {
+      text: "Dashboard",
+      path: "/dashboard",
+      icon: <DashboardIcon />,
+      roles: ["ADMIN", "EMPLOYEE"],
+    },
+    {
+      text: "Departments",
+      path: "/departments",
+      icon: <ApartmentIcon />,
+      roles: ["ADMIN"],
+    },
+    {
+      text: "Employees",
+      path: "/employees",
+      icon: <PeopleIcon />,
+      roles: ["ADMIN"],
+    },
+    {
+      text: "Profile",
+      path: "/profile",
+      icon: <AccountCircleIcon />,
+      roles: ["EMPLOYEE"],
+    },
+    {
+      text: "Leaves",
+      path: "/leaves",
+      icon: <EventNoteIcon />,
+      roles: ["ADMIN", "EMPLOYEE"],
+    },
   ];
 
   return (
@@ -87,7 +122,7 @@ function Sidebar({ collapsed }: SidebarProps) {
                 : "0 0 12px rgba(16, 185, 129, 0.4)",
           }}
         >
-          {email.charAt(0).toUpperCase()}
+          {email ? email.charAt(0).toUpperCase() : "U"}
         </Avatar>
         {!collapsed && (
           <Box sx={{ minWidth: 0 }}>
@@ -123,9 +158,17 @@ function Sidebar({ collapsed }: SidebarProps) {
       </Box>
 
       {/* Menu List */}
-      <List sx={{ p: 2, flexGrow: 1, display: "flex", flexDirection: "column", gap: 1 }}>
+      <List
+        sx={{
+          p: 2,
+          flexGrow: 1,
+          display: "flex",
+          flexDirection: "column",
+          gap: 1,
+        }}
+      >
         {menuItems
-          .filter((item) => item.roles.includes(role))
+          .filter((item) => role && item.roles.includes(role))
           .map((item) => {
             const active = isActive(item.path);
             return (
@@ -138,9 +181,13 @@ function Sidebar({ collapsed }: SidebarProps) {
                     py: 1.2,
                     px: collapsed ? 1.5 : 2,
                     justifyContent: collapsed ? "center" : "flex-start",
-                    backgroundColor: active ? "rgba(99, 102, 241, 0.08)" : "transparent",
+                    backgroundColor: active
+                      ? "rgba(99, 102, 241, 0.08)"
+                      : "transparent",
                     color: active ? "primary.light" : "text.secondary",
-                    borderLeft: active ? "4px solid #6366f1" : "4px solid transparent",
+                    borderLeft: active
+                      ? "4px solid #6366f1"
+                      : "4px solid transparent",
                     transition: "all 0.2s ease",
                     "&:hover": {
                       backgroundColor: "rgba(255, 255, 255, 0.03)",
@@ -163,7 +210,12 @@ function Sidebar({ collapsed }: SidebarProps) {
                   {!collapsed && (
                     <ListItemText
                       primary={
-                        <Typography sx={{ fontSize: "0.9rem", fontWeight: active ? 600 : 500 }}>
+                        <Typography
+                          sx={{
+                            fontSize: "0.9rem",
+                            fontWeight: active ? 600 : 500,
+                          }}
+                        >
                           {item.text}
                         </Typography>
                       }
@@ -200,7 +252,11 @@ function Sidebar({ collapsed }: SidebarProps) {
           }}
         >
           <LogoutIcon sx={{ mr: collapsed ? 0 : 1.5, fontSize: 20 }} />
-          {!collapsed && <Typography sx={{ fontSize: "0.9rem", fontWeight: 600 }}>Logout</Typography>}
+          {!collapsed && (
+            <Typography sx={{ fontSize: "0.9rem", fontWeight: 600 }}>
+              Logout
+            </Typography>
+          )}
         </Button>
       </Box>
     </Box>

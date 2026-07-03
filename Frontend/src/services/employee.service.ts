@@ -24,41 +24,26 @@ export const createEmployee = (data: any) => {
   return api.post("/employees", data);
 };
 
-export const updateEmployee = (
-  id: string,
-  data: any,
-) => {
+export const updateEmployee = (id: string, data: any) => {
   return api.put(`/employees/${id}`, data);
 };
 
-export const deleteEmployee = (
-  id: string,
-) => {
+export const deleteEmployee = (id: string) => {
   return api.delete(`/employees/${id}`);
 };
 
-export const getEmployeeById = (
-  id: string,
-) => {
+export const getEmployeeById = (id: string) => {
   return api.get(`/employees/${id}`);
 };
 
-export const uploadProfileImage = (
-  employeeId: string,
-  file: File,
-) => {
+export const uploadProfileImage = (employeeId: string, file: File) => {
   const formData = new FormData();
 
-  formData.append('file', file);
+  formData.append("file", file);
 
-  return api.post(
-    `/employees/${employeeId}/profile-image`,
-    formData,
-    {
-      headers: {
-        'Content-Type':
-          'multipart/form-data',
-      },
+  return api.post(`/employees/${employeeId}/profile-image`, formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
     },
-  );
+  });
 };

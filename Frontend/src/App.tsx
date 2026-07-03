@@ -7,22 +7,13 @@ import LeavesPage from "./pages/LeavePage";
 import ProfilePage from "./pages/ProfilePage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import ForgotPasswordPage from "./pages/ForgotPasswordPage";
-import ResetPasswordPage from "./pages/ResetPasswordPage";
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<LoginPage />} />
-        <Route
-          path="/forgot-password"
-          element={<ForgotPasswordPage />}
-        />
-
-        <Route
-          path="/reset-password"
-          element={<ResetPasswordPage />}
-        />
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
 
         <Route
           path="/dashboard"

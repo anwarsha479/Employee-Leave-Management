@@ -108,7 +108,11 @@ export function InfiniteScrollTable<TData>({
                   return (
                     <TableCell
                       key={header.id}
-                      onClick={canSort ? header.column.getToggleSortingHandler() : undefined}
+                      onClick={
+                        canSort
+                          ? header.column.getToggleSortingHandler()
+                          : undefined
+                      }
                       sx={{
                         fontWeight: 700,
                         backgroundColor: "#18181b",
@@ -128,24 +132,34 @@ export function InfiniteScrollTable<TData>({
                         sx={{
                           display: "flex",
                           alignItems: "center",
-                          justifyContent: header.id === "actions" ? "center" : "flex-start",
+                          justifyContent:
+                            header.id === "actions" ? "center" : "flex-start",
                           gap: 0.5,
                         }}
                       >
                         {flexRender(
                           header.column.columnDef.header,
-                          header.getContext()
+                          header.getContext(),
                         )}
 
                         {canSort && (
-                          <Box sx={{ display: "inline-flex", color: "primary.light" }}>
+                          <Box
+                            sx={{
+                              display: "inline-flex",
+                              color: "primary.light",
+                            }}
+                          >
                             {isSorted === "asc" && " ▴"}
                             {isSorted === "desc" && " ▾"}
                             {!isSorted && (
                               <Typography
                                 component="span"
                                 variant="caption"
-                                sx={{ opacity: 0.2, fontSize: "0.7rem", ml: 0.5 }}
+                                sx={{
+                                  opacity: 0.2,
+                                  fontSize: "0.7rem",
+                                  ml: 0.5,
+                                }}
                               >
                                 ↕
                               </Typography>
@@ -175,14 +189,15 @@ export function InfiniteScrollTable<TData>({
                   <TableCell
                     key={cell.id}
                     sx={{
-                      textAlign: cell.column.id === "actions" ? "center" : "left",
-                      color: cell.column.id === "actions" ? "inherit" : "text.secondary",
+                      textAlign:
+                        cell.column.id === "actions" ? "center" : "left",
+                      color:
+                        cell.column.id === "actions"
+                          ? "inherit"
+                          : "text.secondary",
                     }}
                   >
-                    {flexRender(
-                      cell.column.columnDef.cell,
-                      cell.getContext()
-                    )}
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </TableCell>
                 ))}
               </TableRow>
@@ -191,7 +206,10 @@ export function InfiniteScrollTable<TData>({
             {table.getRowModel().rows.length === 0 && !loading && (
               <TableRow>
                 <TableCell
-                  colSpan={table.getAllLeafColumns().filter((c) => c.getIsVisible()).length}
+                  colSpan={
+                    table.getAllLeafColumns().filter((c) => c.getIsVisible())
+                      .length
+                  }
                   align="center"
                   sx={{ py: 8 }}
                 >
@@ -226,7 +244,11 @@ export function InfiniteScrollTable<TData>({
       {/* Pages loaded summary */}
       {!hasMore && table.getRowModel().rows.length > 0 && (
         <Box sx={{ display: "flex", justifyContent: "center", py: 2 }}>
-          <Typography variant="caption" color="text.secondary" sx={{ letterSpacing: 0.5 }}>
+          <Typography
+            variant="caption"
+            color="text.secondary"
+            sx={{ letterSpacing: 0.5 }}
+          >
             Page {page} loaded (showing {table.getRowModel().rows.length} items)
           </Typography>
         </Box>

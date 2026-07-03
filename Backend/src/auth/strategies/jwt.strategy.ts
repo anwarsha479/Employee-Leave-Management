@@ -17,14 +17,18 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     if (!jwtSecret) {
       throw new Error('JWT_SECRET environment variable is not configured');
     }
+
     super({
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      jwtFromRequest: ExtractJwt.fromExtractors([
+        (request: any) => {
+          return request?.cookies?.access_token;
+        },
+      ]),
       ignoreExpiration: false,
       secretOrKey: jwtSecret,
     });
   }
 
-  // Attach authenticated user information to req.user.
   async validate(payload: JwtPayload) {
     return {
       userId: payload.sub,

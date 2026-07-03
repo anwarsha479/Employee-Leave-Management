@@ -15,14 +15,9 @@ interface Props {
   }[];
 }
 
-function DepartmentChart({
-  data,
-}: Props) {
+function DepartmentChart({ data }: Props) {
   return (
-    <ResponsiveContainer
-      width="100%"
-      height={450}
-    >
+    <ResponsiveContainer width="100%" height={450}>
       <BarChart
         data={data}
         margin={{
@@ -32,10 +27,7 @@ function DepartmentChart({
           bottom: 70,
         }}
       >
-        <CartesianGrid
-          strokeDasharray="3 3"
-          stroke="rgba(255,255,255,0.15)"
-        />
+        <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.15)" />
 
         <XAxis
           dataKey="department"

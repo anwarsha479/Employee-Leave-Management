@@ -17,7 +17,7 @@ export class DashboardService {
 
     @InjectRepository(Leave)
     private readonly leaveRepository: Repository<Leave>,
-  ) { }
+  ) {}
 
   async getStats() {
     const totalEmployees = await this.employeeRepository.count();
@@ -111,29 +111,16 @@ export class DashboardService {
 
   async getEmployeesByDepartment() {
     return this.departmentRepository
-      .createQueryBuilder(
-        'department',
-      )
+      .createQueryBuilder('department')
       .leftJoin(
         'employees',
         'employee',
         'employee.departmentId = department.id',
       )
-      .select(
-        'department.name',
-        'department',
-      )
-      .addSelect(
-        'COUNT(employee.id)',
-        'count',
-      )
-      .groupBy(
-        'department.id',
-      )
-      .orderBy(
-        'department.name',
-        'ASC',
-      )
+      .select('department.name', 'department')
+      .addSelect('COUNT(employee.id)', 'count')
+      .groupBy('department.id')
+      .orderBy('department.name', 'ASC')
       .getRawMany();
   }
 }

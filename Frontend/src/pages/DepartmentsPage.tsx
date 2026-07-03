@@ -57,7 +57,9 @@ function DepartmentsPage() {
   };
 
   const handleDeleteDepartment = async (id: string) => {
-    const confirmed = window.confirm("Are you sure you want to delete this department?");
+    const confirmed = window.confirm(
+      "Are you sure you want to delete this department?",
+    );
     if (!confirmed) return;
 
     try {
@@ -69,8 +71,21 @@ function DepartmentsPage() {
   };
 
   const columns: GridColDef[] = [
-    { field: "name", headerName: "Name", flex: 1, minWidth: 150, sortable: true },
-    { field: "description", headerName: "Description", flex: 2, minWidth: 300, sortable: true },
+    {
+      field: "name",
+      headerName: "Name",
+      flex: 1,
+      minWidth: 150,
+      sortable: true,
+    },
+    {
+      field: "description",
+      headerName: "Description",
+      flex: 2,
+      minWidth: 300,
+      sortable: true,
+      renderCell: (params) => params.value,
+    },
     {
       field: "actions",
       headerName: "Actions",
@@ -78,7 +93,9 @@ function DepartmentsPage() {
       minWidth: 150,
       sortable: false,
       renderCell: (params: any) => (
-        <Box sx={{ display: "flex", gap: 1, alignItems: "center", height: "100%" }}>
+        <Box
+          sx={{ display: "flex", gap: 1, alignItems: "center", height: "100%" }}
+        >
           <Button
             variant="outlined"
             color="warning"
@@ -108,7 +125,15 @@ function DepartmentsPage() {
   return (
     <Layout>
       <Box sx={{ display: "flex", flexDirection: "column", gap: 4 }}>
-        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 2 }}>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            flexWrap: "wrap",
+            gap: 2,
+          }}
+        >
           <Box>
             <Typography variant="h4" sx={{ fontWeight: 800 }}>
               Departments
@@ -142,7 +167,16 @@ function DepartmentsPage() {
 
         <Card sx={{ maxWidth: "100%", overflow: "hidden" }}>
           <CardContent sx={{ p: 0, "&:last-child": { pb: 0 } }}>
-            <Box sx={{ p: 3, display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 2 }}>
+            <Box
+              sx={{
+                p: 3,
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                flexWrap: "wrap",
+                gap: 2,
+              }}
+            >
               <TextField
                 placeholder="Search departments..."
                 value={search}
@@ -181,6 +215,10 @@ function DepartmentsPage() {
                   },
                   "& .MuiDataGrid-cell": {
                     borderBottom: "1px solid rgba(255, 255, 255, 0.08)",
+                    whiteSpace: "normal !important",
+                    lineHeight: "normal",
+                    display: "flex",
+                    alignItems: "center",
                   },
                 }}
               />

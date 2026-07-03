@@ -1,18 +1,21 @@
 import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
+import { ConfigService } from '@nestjs/config';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { join } from 'path';
 import * as express from 'express';
+import cookieParser from 'cookie-parser';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  app.use(
-    '/uploads',
-    express.static(
-      join(__dirname, '..', 'uploads'),
-    ),
-  );
+
+  const configService = app.get(ConfigService);
+
+  app.use(cookieParser());
+
+  app.use('/uploads', express.static(join(__dirname, '..', 'uploads')));
+
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
@@ -21,8 +24,11 @@ async function bootstrap() {
     }),
   );
 
-  // Enables API access from frontend applications.
-  app.enableCors();
+  // Enable CORS for frontend
+  app.enableCors({
+    origin: configService.get<string>('FRONTEND_URL'),
+    credentials: true,
+  });
 
   // Swagger Configuration
   const config = new DocumentBuilder()
@@ -36,11 +42,12 @@ async function bootstrap() {
 
   SwaggerModule.setup('api', app, document);
 
-  const port = process.env.PORT ?? 3000;
+  const port = configService.get<number>('PORT') ?? 3000;
 
   await app.listen(port);
 
   console.log(`Application running on: http://localhost:${port}`);
+
   console.log(`Swagger documentation: http://localhost:${port}/api`);
 }
 

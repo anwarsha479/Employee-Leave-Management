@@ -1,6 +1,8 @@
 import { useState, useMemo } from "react";
 import { useNavigate, Link as RouterLink } from "react-router-dom";
-import { login, getProfile } from "../services/auth.service";
+import { login } from "../services/auth.service";
+import { useAuth } from "../context/AuthContext";
+
 import {
   Box,
   Card,
@@ -25,15 +27,13 @@ function LoginPage() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
+  const { refreshUser } = useAuth();
 
   const handleLogin = async () => {
     try {
-      const response = await login(email, password);
-      const token = response.data.accessToken;
-      localStorage.setItem("token", token);
-      const profile = await getProfile();
-      localStorage.setItem("email", profile.data.email);
-      localStorage.setItem("role", profile.data.role);
+      await login(email.trim(), password);
+
+      await refreshUser();
 
       navigate("/dashboard");
     } catch (error) {
@@ -55,7 +55,8 @@ function LoginPage() {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          background: "radial-gradient(circle at 50% 50%, #1e1b4b 0%, #09090b 100%)",
+          background:
+            "radial-gradient(circle at 50% 50%, #1e1b4b 0%, #09090b 100%)",
           py: 4,
           px: 2,
         }}
@@ -221,7 +222,10 @@ function LoginPage() {
                     to="/forgot-password"
                     variant="body2"
                     color="primary.light"
-                    sx={{ textDecoration: "none", "&:hover": { textDecoration: "underline" } }}
+                    sx={{
+                      textDecoration: "none",
+                      "&:hover": { textDecoration: "underline" },
+                    }}
                   >
                     Forgot Password?
                   </Link>

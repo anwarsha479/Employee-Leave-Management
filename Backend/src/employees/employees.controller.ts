@@ -27,9 +27,7 @@ import { diskStorage } from 'multer';
 @Controller('employees')
 @ApiBearerAuth()
 export class EmployeesController {
-  constructor(
-    private readonly employeesService: EmployeesService,
-  ) { }
+  constructor(private readonly employeesService: EmployeesService) {}
 
   @Post()
   @UseGuards(JwtAuthGuard, RolesGuard)
@@ -38,9 +36,7 @@ export class EmployeesController {
     @Body()
     createEmployeeDto: CreateEmployeeDto,
   ) {
-    return this.employeesService.create(
-      createEmployeeDto,
-    );
+    return this.employeesService.create(createEmployeeDto);
   }
   @ApiConsumes('multipart/form-data')
   @ApiBody({
@@ -60,20 +56,10 @@ export class EmployeesController {
     FileInterceptor('file', {
       storage: diskStorage({
         destination: './uploads',
-        filename: (
-          req,
-          file,
-          callback,
-        ) => {
-          const uniqueName =
-            Date.now() +
-            '-' +
-            file.originalname;
+        filename: (req, file, callback) => {
+          const uniqueName = Date.now() + '-' + file.originalname;
 
-          callback(
-            null,
-            uniqueName,
-          );
+          callback(null, uniqueName);
         },
       }),
     }),
@@ -135,9 +121,7 @@ export class EmployeesController {
       };
     },
   ) {
-    return this.employeesService.getMyProfile(
-      req.user.userId,
-    );
+    return this.employeesService.getMyProfile(req.user.userId);
   }
 
   @Get(':id')
@@ -159,10 +143,7 @@ export class EmployeesController {
     @Body()
     updateEmployeeDto: UpdateEmployeeDto,
   ) {
-    return this.employeesService.update(
-      id,
-      updateEmployeeDto,
-    );
+    return this.employeesService.update(id, updateEmployeeDto);
   }
 
   @Delete(':id')

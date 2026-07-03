@@ -10,7 +10,7 @@ import {
   Res,
 } from '@nestjs/common';
 
-import { Request, Response, } from 'express';
+import { Request, Response } from 'express';
 
 import { LeavesService } from './leaves.service';
 import { CreateLeaveDto } from './dto/create-leave.dto';
@@ -24,7 +24,7 @@ import { Role } from '../users/enums/role.enum';
 @Controller('leaves')
 @UseGuards(JwtAuthGuard)
 export class LeavesController {
-  constructor(private readonly leavesService: LeavesService) { }
+  constructor(private readonly leavesService: LeavesService) {}
 
   // Employee can apply leave
   @Post()
@@ -55,7 +55,7 @@ export class LeavesController {
     @Query('search') search?: string,
     @Query('sortBy') sortBy?: string,
     @Query('sortOrder') sortOrder?: 'ASC' | 'DESC',
-    @Query('status')status?:string,
+    @Query('status') status?: string,
   ) {
     const role = req.user.role;
     const userId = req.user.userId;
@@ -76,12 +76,8 @@ export class LeavesController {
   @Get('export')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
-  exportLeaves(
-    @Res() res: any,
-  ) {
-    return this.leavesService.exportLeaves(
-      res,
-    );
+  exportLeaves(@Res() res: any) {
+    return this.leavesService.exportLeaves(res);
   }
 
   // Admin can view leave details
@@ -116,8 +112,4 @@ export class LeavesController {
   ) {
     return this.leavesService.updateStatus(id, LeaveStatus.REJECTED);
   }
-
-
 }
-
-

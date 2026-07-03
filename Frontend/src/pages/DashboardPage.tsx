@@ -13,6 +13,7 @@ import {
   getDashboardStats,
   getEmployeeDashboardStats,
 } from "../services/dashboard.service";
+import { useAuth } from "../context/AuthContext";
 import Layout from "../components/Layout";
 import DepartmentChart from "../components/DepartmentChart";
 import { getEmployeesByDepartment } from "../services/dashboard.service";
@@ -35,7 +36,12 @@ interface EmployeeDashboardStats {
 
 function DashboardPage() {
   const navigate = useNavigate();
-  const role = localStorage.getItem("role");
+  const { user } = useAuth();
+
+  const role = user?.role;
+  if (!user) {
+    return null;
+  }
 
   const [stats, setStats] = useState<
     DashboardStats | EmployeeDashboardStats | null

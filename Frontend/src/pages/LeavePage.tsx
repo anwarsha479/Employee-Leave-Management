@@ -16,6 +16,7 @@ import {
   Checkbox,
   FormControlLabel,
 } from "@mui/material";
+import { useAuth } from "../context/AuthContext";
 import { useSearchParams } from "react-router-dom";
 import SearchIcon from "@mui/icons-material/Search";
 import AddIcon from "@mui/icons-material/Add";
@@ -62,7 +63,11 @@ function LeavesPage() {
   const [page, setPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
 
-  const role = localStorage.getItem("role");
+  const { user } = useAuth();
+  const role = user?.role;
+  if (!user) {
+    return null;
+  }
   const [searchParams] = useSearchParams();
 
   const statusFromUrl = searchParams.get("status") || "";

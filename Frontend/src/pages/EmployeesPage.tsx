@@ -68,14 +68,16 @@ function EmployeesPage() {
 
   // TanStack Table states
   const [sorting, setSorting] = useState<SortingState>([]);
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => {
-    try {
-      const stored = localStorage.getItem("lms_employee_columns_visibility");
-      return stored ? JSON.parse(stored) : {};
-    } catch {
-      return {};
-    }
-  });
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(
+    () => {
+      try {
+        const stored = localStorage.getItem("lms_employee_columns_visibility");
+        return stored ? JSON.parse(stored) : {};
+      } catch {
+        return {};
+      }
+    },
+  );
 
   // Columns menu state
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -138,7 +140,7 @@ function EmployeesPage() {
   useEffect(() => {
     localStorage.setItem(
       "lms_employee_columns_visibility",
-      JSON.stringify(columnVisibility)
+      JSON.stringify(columnVisibility),
     );
   }, [columnVisibility]);
 
@@ -196,7 +198,7 @@ function EmployeesPage() {
         chunkToFetch,
         sortBy,
         sortOrder,
-        { signal: controller.signal }
+        { signal: controller.signal },
       );
 
       if (controller.signal.aborted) return;
@@ -220,7 +222,9 @@ function EmployeesPage() {
         updatedEmployees = newEmployees;
       } else {
         const existingIds = new Set(currentEmployees.map((emp) => emp.id));
-        const filteredNew = newEmployees.filter((emp: any) => !existingIds.has(emp.id));
+        const filteredNew = newEmployees.filter(
+          (emp: any) => !existingIds.has(emp.id),
+        );
         updatedEmployees = [...currentEmployees, ...filteredNew];
       }
 
@@ -231,7 +235,11 @@ function EmployeesPage() {
       const reachedPageSize = updatedEmployees.length >= currentPageSize;
       setHasMoreState(responseHasMore && !reachedPageSize);
     } catch (error: any) {
-      if (error.name === "CanceledError" || error.name === "AbortError" || error.message === "canceled") {
+      if (
+        error.name === "CanceledError" ||
+        error.name === "AbortError" ||
+        error.message === "canceled"
+      ) {
         console.log("Fetch call aborted");
       } else {
         console.error("Error fetching employees:", error);
@@ -313,7 +321,9 @@ function EmployeesPage() {
   };
 
   const handleDeleteEmployee = async (id: string) => {
-    const confirmed = window.confirm("Are you sure you want to delete this employee?");
+    const confirmed = window.confirm(
+      "Are you sure you want to delete this employee?",
+    );
     if (!confirmed) return;
 
     try {
@@ -349,7 +359,13 @@ function EmployeesPage() {
         header: "Name",
         enableSorting: true,
         cell: (info: any) => (
-          <Typography sx={{ fontWeight: 600, color: "primary.light", fontSize: "inherit" }}>
+          <Typography
+            sx={{
+              fontWeight: 600,
+              color: "primary.light",
+              fontSize: "inherit",
+            }}
+          >
             {info.getValue()}
           </Typography>
         ),
@@ -416,7 +432,7 @@ function EmployeesPage() {
         ),
       },
     ],
-    [editingEmployee]
+    [editingEmployee],
   );
 
   const table = useReactTable({
@@ -530,13 +546,20 @@ function EmployeesPage() {
                     },
                   }}
                 >
-                  <Typography variant="subtitle2" sx={{ px: 2, py: 1, fontWeight: 700 }}>
+                  <Typography
+                    variant="subtitle2"
+                    sx={{ px: 2, py: 1, fontWeight: 700 }}
+                  >
                     Toggle Columns
                   </Typography>
                   {table.getAllLeafColumns().map((column) => {
                     const isActions = column.id === "actions";
                     return (
-                      <MenuItem key={column.id} disabled={isActions} sx={{ py: 0.5 }}>
+                      <MenuItem
+                        key={column.id}
+                        disabled={isActions}
+                        sx={{ py: 0.5 }}
+                      >
                         <FormControlLabel
                           control={
                             <Checkbox

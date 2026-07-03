@@ -20,7 +20,7 @@ export class UsersService {
 
     @InjectRepository(Employee)
     private readonly employeeRepository: Repository<Employee>,
-  ) { }
+  ) {}
 
   async findAll(): Promise<User[]> {
     return this.userRepository.find();
@@ -75,10 +75,7 @@ export class UsersService {
     }
   }
 
-  async updateProfile(
-    userId: string,
-    updateProfileDto: UpdateProfileDto,
-  ) {
+  async updateProfile(userId: string, updateProfileDto: UpdateProfileDto) {
     const user = await this.userRepository.findOne({
       where: {
         id: userId,
@@ -87,16 +84,13 @@ export class UsersService {
         employee: true,
       },
     });
-user
+    user;
     if (!user) {
-      throw new NotFoundException(
-        'User not found',
-      );
+      throw new NotFoundException('User not found');
     }
 
     if (updateProfileDto.email) {
-      const email =
-        updateProfileDto.email.toLowerCase();
+      const email = updateProfileDto.email.toLowerCase();
 
       user.email = email;
 
@@ -109,23 +103,18 @@ user
 
     if (user.employee) {
       if (updateProfileDto.name) {
-        user.employee.name =
-          updateProfileDto.name;
+        user.employee.name = updateProfileDto.name;
       }
 
       if (updateProfileDto.phone) {
-        user.employee.phone =
-          updateProfileDto.phone;
+        user.employee.phone = updateProfileDto.phone;
       }
 
-      await this.employeeRepository.save(
-        user.employee,
-      );
+      await this.employeeRepository.save(user.employee);
     }
 
     return {
-      message:
-        'Profile updated successfully',
+      message: 'Profile updated successfully',
     };
   }
 }

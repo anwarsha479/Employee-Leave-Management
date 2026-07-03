@@ -167,146 +167,139 @@ function EmployeeForm({
       <form onSubmit={handleSubmit} noValidate>
         <DialogContent dividers sx={{ p: 3 }}>
           <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-           <TextField
-  label="Employee Code"
-  value={employeeCode}
-  onChange={(e) => {
-    setEmployeeCode(e.target.value);
+            <TextField
+              label="Employee Code"
+              value={employeeCode}
+              onChange={(e) => {
+                setEmployeeCode(e.target.value);
 
-    if (e.target.value.trim()) {
-      setEmployeeCodeError("");
-    }
-  }}
-  fullWidth
-  error={!!employeeCodeError}
-  helperText={employeeCodeError}
-/>
+                if (e.target.value.trim()) {
+                  setEmployeeCodeError("");
+                }
+              }}
+              fullWidth
+              error={!!employeeCodeError}
+              helperText={employeeCodeError}
+            />
 
-<TextField
-  label="Name"
-  value={name}
-  onChange={(e) => {
-    setName(e.target.value);
+            <TextField
+              label="Name"
+              value={name}
+              onChange={(e) => {
+                setName(e.target.value);
 
-    if (e.target.value.trim()) {
-      setNameError("");
-    }
-  }}
-  fullWidth
-  error={!!nameError}
-  helperText={nameError}
-/>
+                if (e.target.value.trim()) {
+                  setNameError("");
+                }
+              }}
+              fullWidth
+              error={!!nameError}
+              helperText={nameError}
+            />
 
-<TextField
-  label="Email"
-  type="email"
-  value={email}
-  onChange={(e) => {
-    const value = e.target.value;
-    setEmail(value);
+            <TextField
+              label="Email"
+              type="email"
+              value={email}
+              onChange={(e) => {
+                const value = e.target.value;
+                setEmail(value);
 
-    if (!value.trim()) {
-      setEmailError("Email is required");
-    } else if (
-      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
-    ) {
-      setEmailError("Invalid email format");
-    } else {
-      setEmailError("");
-    }
-  }}
-  fullWidth
-  error={!!emailError}
-  helperText={emailError}
-/>
+                if (!value.trim()) {
+                  setEmailError("Email is required");
+                } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+                  setEmailError("Invalid email format");
+                } else {
+                  setEmailError("");
+                }
+              }}
+              fullWidth
+              error={!!emailError}
+              helperText={emailError}
+            />
 
-<TextField
-  label="Phone"
-  value={phone}
-  onChange={(e) => {
-    const value = e.target.value;
+            <TextField
+              label="Phone"
+              value={phone}
+              onChange={(e) => {
+                const value = e.target.value;
 
-    if (/^\d*$/.test(value)) {
-      setPhone(value);
+                if (/^\d*$/.test(value)) {
+                  setPhone(value);
 
-      if (value && value.length !== 10) {
-        setPhoneError(
-          "Phone number must be 10 digits"
-        );
-      } else {
-        setPhoneError("");
-      }
-    }
-  }}
-  fullWidth
-  error={!!phoneError}
-  helperText={phoneError}
-/>
+                  if (value && value.length !== 10) {
+                    setPhoneError("Phone number must be 10 digits");
+                  } else {
+                    setPhoneError("");
+                  }
+                }
+              }}
+              fullWidth
+              error={!!phoneError}
+              helperText={phoneError}
+            />
 
-<TextField
-  label="Designation"
-  value={designation}
-  onChange={(e) => {
-    setDesignation(e.target.value);
+            <TextField
+              label="Designation"
+              value={designation}
+              onChange={(e) => {
+                setDesignation(e.target.value);
 
-    if (e.target.value.trim()) {
-      setDesignationError("");
-    }
-  }}
-  fullWidth
-  error={!!designationError}
-  helperText={designationError}
-/>
+                if (e.target.value.trim()) {
+                  setDesignationError("");
+                }
+              }}
+              fullWidth
+              error={!!designationError}
+              helperText={designationError}
+            />
 
-<TextField
-  select
-  label="Department"
-  value={departmentId}
-  onChange={(e) => {
-    setDepartmentId(e.target.value);
+            <TextField
+              select
+              label="Department"
+              value={departmentId}
+              onChange={(e) => {
+                setDepartmentId(e.target.value);
 
-    if (e.target.value) {
-      setDepartmentError("");
-    }
-  }}
-  fullWidth
-  error={!!departmentError}
-  helperText={departmentError}
->
-  <MenuItem value="">
-    <em>Select Department</em>
-  </MenuItem>
+                if (e.target.value) {
+                  setDepartmentError("");
+                }
+              }}
+              fullWidth
+              error={!!departmentError}
+              helperText={departmentError}
+            >
+              <MenuItem value="">
+                <em>Select Department</em>
+              </MenuItem>
 
-  {departments.map((department) => (
-    <MenuItem
-      key={department.id}
-      value={department.id}
-    >
-      {department.name}
-    </MenuItem>
-  ))}
-</TextField>
+              {departments.map((department) => (
+                <MenuItem key={department.id} value={department.id}>
+                  {department.name}
+                </MenuItem>
+              ))}
+            </TextField>
 
-<TextField
-  label="Joining Date"
-  type="date"
-  value={joiningDate}
-  onChange={(e) => {
-    setJoiningDate(e.target.value);
+            <TextField
+              label="Joining Date"
+              type="date"
+              value={joiningDate}
+              onChange={(e) => {
+                setJoiningDate(e.target.value);
 
-    if (e.target.value) {
-      setJoiningDateError("");
-    }
-  }}
-  fullWidth
-  error={!!joiningDateError}
-  helperText={joiningDateError}
-  slotProps={{
-    inputLabel: {
-      shrink: true,
-    },
-  }}
-/>
+                if (e.target.value) {
+                  setJoiningDateError("");
+                }
+              }}
+              fullWidth
+              error={!!joiningDateError}
+              helperText={joiningDateError}
+              slotProps={{
+                inputLabel: {
+                  shrink: true,
+                },
+              }}
+            />
           </Box>
         </DialogContent>
         <DialogActions sx={{ p: 2, gap: 1 }}>

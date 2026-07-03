@@ -22,3 +22,7 @@ export const resetPassword = (email: string, otp: string, password: string) => {
     password,
   });
 };
+
+export const logout = () => {
+  return api.post("/auth/logout");
+};

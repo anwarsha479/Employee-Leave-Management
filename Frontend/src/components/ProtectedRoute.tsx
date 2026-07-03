@@ -1,35 +1,36 @@
-import { Navigate } from 'react-router-dom';
+import { Navigate } from "react-router-dom";
+import { CircularProgress, Box } from "@mui/material";
+import { useAuth } from "../context/AuthContext";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
   roles?: string[];
 }
 
-function ProtectedRoute({
-  children,
-  roles,
-}: ProtectedRouteProps) {
-  const token =
-    localStorage.getItem('token');
+function ProtectedRoute({ children, roles }: ProtectedRouteProps) {
+  const { user, loading } = useAuth();
 
-  const role =
-    localStorage.getItem('role');
+  if (loading) {
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100vh",
+        }}
+      >
+        <CircularProgress />
+      </Box>
+    );
+  }
 
-  if (!token) {
+  if (!user) {
     return <Navigate to="/" replace />;
   }
 
-  if (
-    roles &&
-    role &&
-    !roles.includes(role)
-  ) {
-    return (
-      <Navigate
-        to="/dashboard"
-        replace
-      />
-    );
+  if (roles && !roles.includes(user.role)) {
+    return <Navigate to="/dashboard" replace />;
   }
 
   return <>{children}</>;

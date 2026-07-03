@@ -91,21 +91,21 @@ function ForgotPasswordPage() {
     }
   };
   useEffect(() => {
-  if (!otpSent || canResend) {
-    return;
-  }
-
-  const timer = setTimeout(() => {
-    if (countdown > 1) {
-      setCountdown((prev) => prev - 1);
-    } else {
-      setCountdown(0);
-      setCanResend(true);
+    if (!otpSent || canResend) {
+      return;
     }
-  }, 1000);
 
-  return () => clearTimeout(timer);
-}, [countdown, otpSent, canResend]);
+    const timer = setTimeout(() => {
+      if (countdown > 1) {
+        setCountdown((prev) => prev - 1);
+      } else {
+        setCountdown(0);
+        setCanResend(true);
+      }
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, [countdown, otpSent, canResend]);
 
   return (
     <Box

@@ -15,7 +15,6 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
-
 } from "@mui/material";
 import EmailIcon from "@mui/icons-material/Email";
 import FingerprintIcon from "@mui/icons-material/Fingerprint";
@@ -23,13 +22,13 @@ import PhoneIcon from "@mui/icons-material/Phone";
 import BusinessIcon from "@mui/icons-material/Business";
 import WorkIcon from "@mui/icons-material/Work";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
-import { uploadProfileImage } from '../services/employee.service';
+import { uploadProfileImage } from "../services/employee.service";
 import Layout from "../components/Layout";
 import {
   getProfile,
   updateProfile,
   changePassword,
-  getProfileImageUrl
+  getProfileImageUrl,
 } from "../services/profile.service";
 
 function ProfilePage() {
@@ -68,11 +67,7 @@ function ProfilePage() {
     }
 
     try {
-      const response =
-        await uploadProfileImage(
-          profile.id,
-          file,
-        );
+      const response = await uploadProfileImage(profile.id, file);
 
       setProfile(response.data);
     } catch (error) {
@@ -113,26 +108,18 @@ function ProfilePage() {
 
   const handleChangePassword = async () => {
     try {
-      if (
-        !currentPassword ||
-        !newPassword ||
-        !confirmPassword
-      ) {
+      if (!currentPassword || !newPassword || !confirmPassword) {
         alert("Please fill all fields");
         return;
       }
 
       if (newPassword.length < 8) {
-        alert(
-          "Password must be at least 8 characters"
-        );
+        alert("Password must be at least 8 characters");
         return;
       }
 
       if (currentPassword === newPassword) {
-        alert(
-          "New password must be different from current password"
-        );
+        alert("New password must be different from current password");
         return;
       }
 
@@ -178,54 +165,42 @@ function ProfilePage() {
     );
   }
 
-  const roleColor =
-    profile.role === "ADMIN"
-      ? "primary"
-      : "secondary";
+  const roleColor = profile.role === "ADMIN" ? "primary" : "secondary";
 
   const userInitials = profile.name
     ? profile.name
-      .split(" ")
-      .map((word: string) => word[0])
-      .join("")
-      .toUpperCase()
+        .split(" ")
+        .map((word: string) => word[0])
+        .join("")
+        .toUpperCase()
     : "ME";
 
   return (
     <Layout>
       <Box sx={{ maxWidth: 900, mx: "auto", py: 4 }}>
-        <Typography
-          variant="h4"
-          sx={{ fontWeight: 800, mb: 4 }}
-        >
+        <Typography variant="h4" sx={{ fontWeight: 800, mb: 4 }}>
           My Profile
         </Typography>
 
         <Card
           sx={{
-            background:
-              "rgba(24,24,27,0.65)",
+            background: "rgba(24,24,27,0.65)",
             backdropFilter: "blur(16px)",
-            border:
-              "1px solid rgba(255,255,255,0.08)",
-            boxShadow:
-              "0 8px 32px rgba(0,0,0,0.3)",
+            border: "1px solid rgba(255,255,255,0.08)",
+            boxShadow: "0 8px 32px rgba(0,0,0,0.3)",
             borderRadius: 4,
           }}
         >
           <Box
             sx={{
               height: 6,
-              background:
-                "linear-gradient(90deg,#6366f1 0%,#10b981 100%)",
+              background: "linear-gradient(90deg,#6366f1 0%,#10b981 100%)",
               borderTopLeftRadius: "inherit",
               borderTopRightRadius: "inherit",
             }}
           />
 
-          <CardContent
-            sx={{ p: { xs: 3, md: 5 } }}
-          >
+          <CardContent sx={{ p: { xs: 3, md: 5 } }}>
             <Box
               sx={{
                 display: "flex",
@@ -264,13 +239,8 @@ function ProfilePage() {
                   gap: 1,
                 }}
               >
-                <Button
-                  variant="outlined"
-                  component="label"
-                  size="small"
-                >
+                <Button variant="outlined" component="label" size="small">
                   Upload Photo
-
                   <input
                     hidden
                     type="file"
@@ -304,11 +274,7 @@ function ProfilePage() {
                   {editing ? (
                     <TextField
                       value={name}
-                      onChange={(e) =>
-                        setName(
-                          e.target.value,
-                        )
-                      }
+                      onChange={(e) => setName(e.target.value)}
                       size="small"
                     />
                   ) : (
@@ -322,17 +288,10 @@ function ProfilePage() {
                     </Typography>
                   )}
 
-                  <Chip
-                    label={profile.role}
-                    color={roleColor}
-                    size="small"
-                  />
+                  <Chip label={profile.role} color={roleColor} size="small" />
                 </Box>
 
-                <Typography
-                  variant="body2"
-                  color="text.secondary"
-                >
+                <Typography variant="body2" color="text.secondary">
                   {profile.designation}
                 </Typography>
               </Box>
@@ -345,10 +304,7 @@ function ProfilePage() {
                 <Box sx={{ display: "flex", gap: 2 }}>
                   <FingerprintIcon />
                   <Box>
-                    <Typography
-                      variant="caption"
-                      color="text.secondary"
-                    >
+                    <Typography variant="caption" color="text.secondary">
                       Employee Code
                     </Typography>
                     <Typography
@@ -366,10 +322,7 @@ function ProfilePage() {
                 <Box sx={{ display: "flex", gap: 2 }}>
                   <EmailIcon />
                   <Box>
-                    <Typography
-                      variant="caption"
-                      color="text.secondary"
-                    >
+                    <Typography variant="caption" color="text.secondary">
                       Email Address
                     </Typography>
                     <Typography
@@ -387,21 +340,14 @@ function ProfilePage() {
                 <Box sx={{ display: "flex", gap: 2 }}>
                   <PhoneIcon />
                   <Box>
-                    <Typography
-                      variant="caption"
-                      color="text.secondary"
-                    >
+                    <Typography variant="caption" color="text.secondary">
                       Phone Number
                     </Typography>
 
                     {editing ? (
                       <TextField
                         value={phone}
-                        onChange={(e) =>
-                          setPhone(
-                            e.target.value,
-                          )
-                        }
+                        onChange={(e) => setPhone(e.target.value)}
                         size="small"
                       />
                     ) : (
@@ -421,10 +367,7 @@ function ProfilePage() {
                 <Box sx={{ display: "flex", gap: 2 }}>
                   <BusinessIcon />
                   <Box>
-                    <Typography
-                      variant="caption"
-                      color="text.secondary"
-                    >
+                    <Typography variant="caption" color="text.secondary">
                       Department
                     </Typography>
                     <Typography
@@ -442,10 +385,7 @@ function ProfilePage() {
                 <Box sx={{ display: "flex", gap: 2 }}>
                   <WorkIcon />
                   <Box>
-                    <Typography
-                      variant="caption"
-                      color="text.secondary"
-                    >
+                    <Typography variant="caption" color="text.secondary">
                       Designation
                     </Typography>
                     <Typography
@@ -463,10 +403,7 @@ function ProfilePage() {
                 <Box sx={{ display: "flex", gap: 2 }}>
                   <CalendarMonthIcon />
                   <Box>
-                    <Typography
-                      variant="caption"
-                      color="text.secondary"
-                    >
+                    <Typography variant="caption" color="text.secondary">
                       Joining Date
                     </Typography>
                     <Typography
@@ -491,44 +428,27 @@ function ProfilePage() {
             >
               {editing ? (
                 <>
-                  <Button
-                    variant="contained"
-                    onClick={handleSave}
-                  >
+                  <Button variant="contained" onClick={handleSave}>
                     Save
                   </Button>
 
                   <Button
                     variant="outlined"
                     onClick={() => {
-                      setName(
-                        profile.name,
-                      );
-                      setPhone(
-                        profile.phone,
-                      );
+                      setName(profile.name);
+                      setPhone(profile.phone);
                       setEditing(false);
                     }}
                   >
                     Cancel
                   </Button>
-
                 </>
               ) : (
-                <Button
-                  variant="contained"
-                  onClick={() =>
-                    setEditing(true)
-                  }
-                >
+                <Button variant="contained" onClick={() => setEditing(true)}>
                   Edit Profile
                 </Button>
-
               )}
-              <Button
-                variant="outlined"
-                onClick={() => setPasswordOpen(true)}
-              >
+              <Button variant="outlined" onClick={() => setPasswordOpen(true)}>
                 Change Password
               </Button>
             </Box>
@@ -546,9 +466,7 @@ function ProfilePage() {
         fullWidth
         maxWidth="sm"
       >
-        <DialogTitle>
-          Change Password
-        </DialogTitle>
+        <DialogTitle>Change Password</DialogTitle>
 
         <DialogContent
           sx={{
@@ -562,9 +480,7 @@ function ProfilePage() {
             label="Current Password"
             type="password"
             value={currentPassword}
-            onChange={(e) =>
-              setCurrentPassword(e.target.value)
-            }
+            onChange={(e) => setCurrentPassword(e.target.value)}
             fullWidth
           />
 
@@ -572,9 +488,7 @@ function ProfilePage() {
             label="New Password"
             type="password"
             value={newPassword}
-            onChange={(e) =>
-              setNewPassword(e.target.value)
-            }
+            onChange={(e) => setNewPassword(e.target.value)}
             fullWidth
           />
 
@@ -582,9 +496,7 @@ function ProfilePage() {
             label="Confirm Password"
             type="password"
             value={confirmPassword}
-            onChange={(e) =>
-              setConfirmPassword(e.target.value)
-            }
+            onChange={(e) => setConfirmPassword(e.target.value)}
             fullWidth
           />
         </DialogContent>
@@ -601,10 +513,7 @@ function ProfilePage() {
             Cancel
           </Button>
 
-          <Button
-            variant="contained"
-            onClick={handleChangePassword}
-          >
+          <Button variant="contained" onClick={handleChangePassword}>
             Change Password
           </Button>
         </DialogActions>

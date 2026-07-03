@@ -18,16 +18,9 @@ export const updateDepartment = (
     description: string;
   },
 ) => {
-  return api.put(
-    `/departments/${id}`,
-    data,
-  );
+  return api.put(`/departments/${id}`, data);
 };
 
-export const deleteDepartment = (
-  id: string,
-) => {
-  return api.delete(
-    `/departments/${id}`,
-  );
+export const deleteDepartment = (id: string) => {
+  return api.delete(`/departments/${id}`);
 };

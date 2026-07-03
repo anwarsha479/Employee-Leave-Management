@@ -23,18 +23,14 @@ import { Role } from '../users/enums/role.enum';
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles(Role.ADMIN)
 export class DepartmentsController {
-  constructor(
-    private readonly departmentsService: DepartmentsService,
-  ) {}
+  constructor(private readonly departmentsService: DepartmentsService) {}
 
   @Post()
   create(
     @Body()
     createDepartmentDto: CreateDepartmentDto,
   ) {
-    return this.departmentsService.create(
-      createDepartmentDto,
-    );
+    return this.departmentsService.create(createDepartmentDto);
   }
 
   @Get()
@@ -43,11 +39,7 @@ export class DepartmentsController {
     @Query('limit') limit?: number,
     @Query('search') search?: string,
   ) {
-    return this.departmentsService.findAll(
-      page,
-      limit,
-      search,
-    );
+    return this.departmentsService.findAll(page, limit, search);
   }
 
   @Get(':id')
@@ -66,10 +58,7 @@ export class DepartmentsController {
     @Body()
     updateDepartmentDto: UpdateDepartmentDto,
   ) {
-    return this.departmentsService.update(
-      id,
-      updateDepartmentDto,
-    );
+    return this.departmentsService.update(id, updateDepartmentDto);
   }
 
   @Delete(':id')
@@ -80,4 +69,3 @@ export class DepartmentsController {
     return this.departmentsService.remove(id);
   }
 }
-

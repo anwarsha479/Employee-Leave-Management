@@ -1,9 +1,7 @@
 import { createTheme } from "@mui/material/styles";
 
 // Generates the theme configuration for the application based on the mode (light/dark)
-const getTheme = (
-  mode: "light" | "dark",
-) =>
+const getTheme = (mode: "light" | "dark") =>
   createTheme({
     palette: {
       mode,
@@ -72,15 +70,18 @@ const getTheme = (
         styleOverrides: {
           root: {
             backgroundImage: "none",
-            border: mode === "dark"
-              ? "1px solid rgba(255, 255, 255, 0.08) !important"
-              : "1px solid rgba(0, 0, 0, 0.08) !important",
-            boxShadow: mode === "dark"
-              ? "0 4px 20px rgba(0, 0, 0, 0.4) !important"
-              : "0 4px 20px rgba(0, 0, 0, 0.05) !important",
-            backgroundColor: mode === "dark" 
-              ? "rgba(24, 24, 27, 0.65) !important" 
-              : "rgba(255, 255, 255, 0.8) !important",
+            border:
+              mode === "dark"
+                ? "1px solid rgba(255, 255, 255, 0.08) !important"
+                : "1px solid rgba(0, 0, 0, 0.08) !important",
+            boxShadow:
+              mode === "dark"
+                ? "0 4px 20px rgba(0, 0, 0, 0.4) !important"
+                : "0 4px 20px rgba(0, 0, 0, 0.05) !important",
+            backgroundColor:
+              mode === "dark"
+                ? "rgba(24, 24, 27, 0.65) !important"
+                : "rgba(255, 255, 255, 0.8) !important",
             backdropFilter: "blur(16px)",
           },
         },
@@ -89,16 +90,20 @@ const getTheme = (
       MuiTableCell: {
         styleOverrides: {
           head: {
-            backgroundColor: mode === "dark" ? "#18181b !important" : "#ffffff !important",
-            color: mode === "dark" ? "#f4f4f5 !important" : "#18181b !important",
-            borderBottom: mode === "dark"
-              ? "2px solid rgba(255,255,255,0.08) !important"
-              : "2px solid rgba(0,0,0,0.08) !important",
+            backgroundColor:
+              mode === "dark" ? "#18181b !important" : "#ffffff !important",
+            color:
+              mode === "dark" ? "#f4f4f5 !important" : "#18181b !important",
+            borderBottom:
+              mode === "dark"
+                ? "2px solid rgba(255,255,255,0.08) !important"
+                : "2px solid rgba(0,0,0,0.08) !important",
           },
           body: {
-            borderBottom: mode === "dark"
-              ? "1px solid rgba(255,255,255,0.08) !important"
-              : "1px solid rgba(0,0,0,0.08) !important",
+            borderBottom:
+              mode === "dark"
+                ? "1px solid rgba(255,255,255,0.08) !important"
+                : "1px solid rgba(0,0,0,0.08) !important",
           },
         },
       },
@@ -110,10 +115,12 @@ const getTheme = (
           },
           input: {
             "&:-webkit-autofill": {
-              WebkitBoxShadow: mode === "dark"
-                ? "0 0 0 100px #18181b inset !important"
-                : "0 0 0 100px #f8fafc inset !important",
-              WebkitTextFillColor: mode === "dark" ? "#f4f4f5 !important" : "#18181b !important",
+              WebkitBoxShadow:
+                mode === "dark"
+                  ? "0 0 0 100px #18181b inset !important"
+                  : "0 0 0 100px #f8fafc inset !important",
+              WebkitTextFillColor:
+                mode === "dark" ? "#f4f4f5 !important" : "#18181b !important",
               caretColor: mode === "dark" ? "#f4f4f5" : "#18181b",
               transition: "background-color 5000s ease-in-out 0s",
             },
