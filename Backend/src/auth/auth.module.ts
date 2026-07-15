@@ -10,6 +10,7 @@ import { PassportModule } from '@nestjs/passport';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { UsersModule } from 'src/users/users.module';
 import { EmailModule } from 'src/email/email.module';
+import { jwtConfig } from 'src/config/jwt.config';
 @Module({
   imports: [
     TypeOrmModule.forFeature([User]),
@@ -18,12 +19,7 @@ import { EmailModule } from 'src/email/email.module';
     JwtModule.registerAsync({
       imports: [ConfigModule, PassportModule],
       inject: [ConfigService],
-      useFactory: (configService: ConfigService) => ({
-        secret: configService.get<string>('JWT_SECRET'),
-        signOptions: {
-          expiresIn: '1d',
-        },
-      }),
+      useFactory: jwtConfig,
     }),
   ],
   providers: [AuthService, JwtStrategy],

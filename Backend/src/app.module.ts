@@ -10,6 +10,7 @@ import { EmployeesModule } from './employees/employees.module';
 import { LeavesModule } from './leaves/leaves.module';
 import { DashboardModule } from './dashboard/dashboard.module';
 import { EmailModule } from './email/email.module';
+import { databaseConfig } from './config/database.config';
 
 @Module({
   imports: [
@@ -19,17 +20,7 @@ import { EmailModule } from './email/email.module';
     }),
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],
-
-      useFactory: (configService: ConfigService) => ({
-        type: 'postgres',
-        host: configService.get<string>('DB_HOST'),
-        port: Number(configService.get<string>('DB_PORT')),
-        username: configService.get<string>('DB_USERNAME'),
-        password: configService.get<string>('DB_PASSWORD'),
-        database: configService.get<string>('DB_NAME'),
-        autoLoadEntities: true,
-        synchronize: configService.get<string>('NODE_ENV') !== 'production',
-      }),
+      useFactory: databaseConfig,
     }),
     UsersModule,
     AuthModule,

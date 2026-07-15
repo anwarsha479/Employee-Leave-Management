@@ -1,13 +1,16 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Resend } from 'resend';
+import { emailConfig } from 'src/config/email.config';
 
 @Injectable()
 export class EmailService {
   private readonly resend: Resend;
 
   constructor(private readonly configService: ConfigService) {
-    this.resend = new Resend(this.configService.get<string>('RESEND_API_KEY'));
+    const config = emailConfig(this.configService);
+
+    this.resend = new Resend(config.apiKey);
   }
 
   async sendOtpEmail(email: string, otp: string) {
