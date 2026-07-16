@@ -32,10 +32,7 @@ export class AuthController {
     private readonly configService: ConfigService,
   ) {}
 
-  private setAuthCookie(
-    response: Response,
-    accessToken: string,
-  ) {
+  private setAuthCookie(response: Response, accessToken: string) {
     response.cookie('access_token', accessToken, {
       httpOnly: true,
       secure: this.configService.get<string>('NODE_ENV') === 'production',
@@ -109,10 +106,7 @@ export class AuthController {
     @Body()
     changePasswordDto: ChangePasswordDto,
   ) {
-    return this.authService.changePassword(
-      req.user.userId,
-      changePasswordDto,
-    );
+    return this.authService.changePassword(req.user.userId, changePasswordDto);
   }
 
   @Put('profile')
@@ -127,9 +121,6 @@ export class AuthController {
     @Body()
     updateProfileDto: UpdateProfileDto,
   ) {
-    return this.usersService.updateProfile(
-      req.user.userId,
-      updateProfileDto,
-    );
+    return this.usersService.updateProfile(req.user.userId, updateProfileDto);
   }
 }

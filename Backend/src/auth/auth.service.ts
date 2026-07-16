@@ -23,11 +23,8 @@ export class AuthService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
-
     private readonly jwtService: JwtService,
-
     private readonly emailService: EmailService,
-
     private readonly configService: ConfigService,
   ) {}
 
@@ -65,7 +62,6 @@ export class AuthService {
   async keycloakLogin(token: string) {
     const keycloakUrl = this.configService.get<string>('KEYCLOAK_URL');
     const realm = this.configService.get<string>('KEYCLOAK_REALM');
-
     const client = jwksClient({
       jwksUri: `${keycloakUrl}/realms/${realm}/protocol/openid-connect/certs`,
     });
@@ -75,13 +71,9 @@ export class AuthService {
     });
 
     const key = await client.getSigningKey(decoded.header.kid);
-
     const signingKey = key.getPublicKey();
-
     const payload: any = jwt.verify(token, signingKey);
-
     const email = payload.email;
-
     const user = await this.userRepository.findOne({
       where: {
         email,
@@ -116,9 +108,7 @@ export class AuthService {
     }
 
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
-
     user.otp = otp;
-
     user.otpExpiry = new Date(Date.now() + 10 * 60 * 1000);
 
     await this.userRepository.save(user);
@@ -128,7 +118,6 @@ export class AuthService {
     console.log('====================================');
 
     await this.emailService.sendOtpEmail(user.email, otp);
-
     return {
       message: 'OTP sent successfully',
     };
@@ -154,10 +143,8 @@ export class AuthService {
     }
 
     user.password = await bcrypt.hash(resetPasswordDto.password, 10);
-
     user.otp = null as any;
     user.otpExpiry = null as any;
-
     await this.userRepository.save(user);
 
     return {
@@ -186,9 +173,7 @@ export class AuthService {
     }
 
     user.password = await bcrypt.hash(changePasswordDto.newPassword, 10);
-
     await this.userRepository.save(user);
-
     return {
       message: 'Password changed successfully',
     };

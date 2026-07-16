@@ -12,22 +12,21 @@ import { Department } from '../departments/entities/department.entity';
 import { CreateEmployeeDto } from './dto/create-employee.dto';
 import { UpdateEmployeeDto } from './dto/update-employee.dto';
 import { UsersService } from '../users/users.service';
+import { KeycloakService } from 'src/keycloak/keycloak.service';
 
 @Injectable()
 export class EmployeesService {
   constructor(
     @InjectRepository(Employee)
     private readonly employeeRepository: Repository<Employee>,
-
     @InjectRepository(Department)
     private readonly departmentRepository: Repository<Department>,
-
     private readonly usersService: UsersService,
+    private readonly keycloakService: KeycloakService,
   ) {}
 
   async create(createEmployeeDto: CreateEmployeeDto): Promise<Employee> {
     const email = createEmployeeDto.email.toLowerCase();
-
     const existingEmployee = await this.employeeRepository.findOne({
       where: [
         { email },
@@ -42,7 +41,6 @@ export class EmployeesService {
     }
 
     const existingUser = await this.usersService.findByEmail(email);
-
     if (existingUser) {
       throw new ConflictException(
         'User account with this email already exists',
@@ -60,11 +58,15 @@ export class EmployeesService {
     }
 
     const defaultPassword = 'Password@123';
-
     const user = await this.usersService.create({
       email,
       password: defaultPassword,
     });
+    await this.keycloakService.createUser(
+      email,
+      defaultPassword,
+      createEmployeeDto.name,
+    );
 
     try {
       const employee = this.employeeRepository.create({
@@ -96,11 +98,8 @@ export class EmployeesService {
     sortOrder?: 'ASC' | 'DESC',
   ) {
     const skip = offset;
-
     const query = this.employeeRepository.createQueryBuilder('employee');
-
     query.leftJoinAndSelect('employee.department', 'department');
-
     if (search) {
       query.andWhere('LOWER(employee.name) LIKE LOWER(:search)', {
         search: `%${search}%`,
@@ -132,7 +131,6 @@ export class EmployeesService {
     }
 
     query.skip(skip).take(chunk);
-
     const [data, total] = await query.getManyAndCount();
 
     return {
@@ -243,6 +241,12 @@ export class EmployeesService {
       employee.department = department;
     }
 
+    await this.keycloakService.updateUser(
+      employee.email,
+      email ?? employee.email,
+      updateEmployeeDto.name ?? employee.name,
+    );
+
     Object.assign(employee, {
       employeeCode: updateEmployeeDto.employeeCode ?? employee.employeeCode,
       name: updateEmployeeDto.name ?? employee.name,
@@ -257,11 +261,9 @@ export class EmployeesService {
 
   async remove(id: string): Promise<void> {
     const employee = await this.findOne(id);
-
     const userId = employee.user?.id;
-
+    await this.keycloakService.deleteUser(employee.email);
     await this.employeeRepository.remove(employee);
-
     if (userId) {
       await this.usersService.remove(userId);
     }
@@ -295,7 +297,6 @@ export class EmployeesService {
     }
 
     employee.profileImage = filename;
-
     return this.employeeRepository.save(employee);
   }
 }

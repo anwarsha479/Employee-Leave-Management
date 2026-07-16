@@ -1,12 +1,9 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { AuthProvider } from "./context/AuthContext";
-
 import { ThemeProvider, CssBaseline } from "@mui/material";
-
 import App from "./App";
 import getTheme from "./theme";
-
 import { ThemeProviderWrapper, useThemeContext } from "./context/ThemeContext";
 
 function AppTheme() {

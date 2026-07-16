@@ -30,47 +30,43 @@ function LoginPage() {
   const navigate = useNavigate();
   const { refreshUser } = useAuth();
   useEffect(() => {
-  const handleKeycloakCallback = async () => {
-    const authenticated = await keycloak.init({
-      checkLoginIframe: false,
-    });
+    const handleKeycloakCallback = async () => {
+      const authenticated = await keycloak.init({
+        checkLoginIframe: false,
+      });
 
-    if (authenticated && keycloak.token) {
-      await axios.post(
-        `${import.meta.env.VITE_API_URL}/auth/keycloak-login`,
-        {
-          token: keycloak.token,
-        },
-        {
-          withCredentials: true,
-        },
-      );
+      if (authenticated && keycloak.token) {
+        await axios.post(
+          `${import.meta.env.VITE_API_URL}/auth/keycloak-login`,
+          {
+            token: keycloak.token,
+          },
+          {
+            withCredentials: true,
+          },
+        );
 
-      await refreshUser();
+        await refreshUser();
+        navigate("/dashboard");
+      }
+    };
 
-      navigate("/dashboard");
-    }
-  };
-
-  handleKeycloakCallback();
-}, []);
+    handleKeycloakCallback();
+  }, []);
 
   const handleLogin = async () => {
     try {
       await login(email.trim(), password);
-
       await refreshUser();
-
       navigate("/dashboard");
     } catch (error) {
       alert("Invalid credentials");
     }
   };
-  
-  const handleKeycloakLogin = async () => {
-  await keycloak.login();
-};
 
+  const handleKeycloakLogin = async () => {
+    await keycloak.login();
+  };
 
   const handleClickShowPassword = () => {
     setShowPassword(!showPassword);

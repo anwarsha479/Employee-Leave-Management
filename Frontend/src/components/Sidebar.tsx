@@ -1,4 +1,4 @@
-import { useLocation, useNavigate, Link } from "react-router-dom";
+import { useLocation, Link } from "react-router-dom";
 import {
   Box,
   List,
@@ -13,6 +13,7 @@ import {
 } from "@mui/material";
 import { useAuth } from "../context/AuthContext";
 import { logout } from "../services/auth.service";
+import keycloak from "../keycloak";
 
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import ApartmentIcon from "@mui/icons-material/Apartment";
@@ -26,7 +27,6 @@ interface SidebarProps {
 }
 
 function Sidebar({ collapsed }: SidebarProps) {
-  const navigate = useNavigate();
   const location = useLocation();
   const { user } = useAuth();
 
@@ -37,9 +37,9 @@ function Sidebar({ collapsed }: SidebarProps) {
     try {
       await logout();
 
-      navigate("/", { replace: true });
-
-      window.location.reload();
+      await keycloak.logout({
+        redirectUri: window.location.origin,
+      });
     } catch (error) {
       console.error("Logout failed:", error);
     }
