@@ -20,6 +20,28 @@ function AppTheme() {
   );
 }
 
+//  keycloak
+//   .init({
+//     onLoad: "check-sso",
+//     pkceMethod: "S256",
+//     checkLoginIframe: false,
+//   })
+//   .then(() => {
+//     ReactDOM.createRoot(
+//       document.getElementById("root")!,
+//     ).render(
+//       <React.StrictMode>
+//         <ThemeProviderWrapper>
+//           <AuthProvider>
+//             <AppTheme />
+//           </AuthProvider>
+//         </ThemeProviderWrapper>
+//       </React.StrictMode>,
+//     );
+//   })
+//   .catch((error) => {
+//     console.error("Keycloak initialization failed:", error);
+//   });
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <ThemeProviderWrapper>

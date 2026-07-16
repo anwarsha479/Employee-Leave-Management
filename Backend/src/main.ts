@@ -6,7 +6,6 @@ import { AppModule } from './app.module';
 import { join } from 'path';
 import * as express from 'express';
 import cookieParser from 'cookie-parser';
-
 import { appConfig } from './config/app.config';
 
 async function bootstrap() {

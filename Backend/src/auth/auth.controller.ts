@@ -21,6 +21,7 @@ import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { UpdateProfileDto } from 'src/users/dto/update-profile.dto';
 import { UsersService } from '../users/users.service';
+import { KeycloakLoginDto } from './dto/keycloak-login.dto';
 
 @Controller('auth')
 @ApiBearerAuth()
@@ -31,6 +32,18 @@ export class AuthController {
     private readonly configService: ConfigService,
   ) {}
 
+  private setAuthCookie(
+    response: Response,
+    accessToken: string,
+  ) {
+    response.cookie('access_token', accessToken, {
+      httpOnly: true,
+      secure: this.configService.get<string>('NODE_ENV') === 'production',
+      sameSite: 'lax',
+      maxAge: 24 * 60 * 60 * 1000,
+    });
+  }
+
   @Post('login')
   async login(
     @Body() loginDto: LoginDto,
@@ -38,15 +51,24 @@ export class AuthController {
   ) {
     const result = await this.authService.login(loginDto);
 
-    response.cookie('access_token', result.accessToken, {
-      httpOnly: true,
-      secure: this.configService.get<string>('NODE_ENV') === 'production',
-      sameSite: 'lax',
-      maxAge: 24 * 60 * 60 * 1000,
-    });
+    this.setAuthCookie(response, result.accessToken);
 
     return {
       message: 'Login successful',
+    };
+  }
+
+  @Post('keycloak-login')
+  async keycloakLogin(
+    @Body() body: KeycloakLoginDto,
+    @Res({ passthrough: true }) response: Response,
+  ) {
+    const result = await this.authService.keycloakLogin(body.token);
+
+    this.setAuthCookie(response, result.accessToken);
+
+    return {
+      message: 'Keycloak login successful',
     };
   }
 
@@ -87,7 +109,10 @@ export class AuthController {
     @Body()
     changePasswordDto: ChangePasswordDto,
   ) {
-    return this.authService.changePassword(req.user.userId, changePasswordDto);
+    return this.authService.changePassword(
+      req.user.userId,
+      changePasswordDto,
+    );
   }
 
   @Put('profile')
@@ -102,6 +127,9 @@ export class AuthController {
     @Body()
     updateProfileDto: UpdateProfileDto,
   ) {
-    return this.usersService.updateProfile(req.user.userId, updateProfileDto);
+    return this.usersService.updateProfile(
+      req.user.userId,
+      updateProfileDto,
+    );
   }
 }

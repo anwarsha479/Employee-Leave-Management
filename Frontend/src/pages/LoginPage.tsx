@@ -1,8 +1,9 @@
-import { useState, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useNavigate, Link as RouterLink } from "react-router-dom";
 import { login } from "../services/auth.service";
 import { useAuth } from "../context/AuthContext";
-
+import keycloak from "../keycloak";
+import axios from "axios";
 import {
   Box,
   Card,
@@ -28,6 +29,31 @@ function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
   const { refreshUser } = useAuth();
+  useEffect(() => {
+  const handleKeycloakCallback = async () => {
+    const authenticated = await keycloak.init({
+      checkLoginIframe: false,
+    });
+
+    if (authenticated && keycloak.token) {
+      await axios.post(
+        `${import.meta.env.VITE_API_URL}/auth/keycloak-login`,
+        {
+          token: keycloak.token,
+        },
+        {
+          withCredentials: true,
+        },
+      );
+
+      await refreshUser();
+
+      navigate("/dashboard");
+    }
+  };
+
+  handleKeycloakCallback();
+}, []);
 
   const handleLogin = async () => {
     try {
@@ -40,6 +66,11 @@ function LoginPage() {
       alert("Invalid credentials");
     }
   };
+  
+  const handleKeycloakLogin = async () => {
+  await keycloak.login();
+};
+
 
   const handleClickShowPassword = () => {
     setShowPassword(!showPassword);
@@ -214,6 +245,21 @@ function LoginPage() {
                   }}
                 >
                   Sign In
+                </Button>
+
+                <Button
+                  fullWidth
+                  variant="outlined"
+                  size="large"
+                  onClick={handleKeycloakLogin}
+                  sx={{
+                    mt: 2,
+                    py: 1.5,
+                    fontSize: "1rem",
+                    fontWeight: 600,
+                  }}
+                >
+                  Login with Keycloak
                 </Button>
 
                 <Box sx={{ mt: 3, textAlign: "center" }}>

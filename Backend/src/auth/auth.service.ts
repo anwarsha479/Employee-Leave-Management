@@ -8,13 +8,15 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
-
+import { ConfigService } from '@nestjs/config';
 import { User } from '../users/entities/user.entity';
 import { LoginDto } from './dto/login.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { EmailService } from 'src/email/email.service';
+import * as jwt from 'jsonwebtoken';
+import jwksClient from 'jwks-rsa';
 
 @Injectable()
 export class AuthService {
@@ -25,6 +27,8 @@ export class AuthService {
     private readonly jwtService: JwtService,
 
     private readonly emailService: EmailService,
+
+    private readonly configService: ConfigService,
   ) {}
 
   async login(loginDto: LoginDto) {
@@ -55,6 +59,48 @@ export class AuthService {
 
     return {
       accessToken,
+    };
+  }
+
+  async keycloakLogin(token: string) {
+    const keycloakUrl = this.configService.get<string>('KEYCLOAK_URL');
+    const realm = this.configService.get<string>('KEYCLOAK_REALM');
+
+    const client = jwksClient({
+      jwksUri: `${keycloakUrl}/realms/${realm}/protocol/openid-connect/certs`,
+    });
+
+    const decoded: any = jwt.decode(token, {
+      complete: true,
+    });
+
+    const key = await client.getSigningKey(decoded.header.kid);
+
+    const signingKey = key.getPublicKey();
+
+    const payload: any = jwt.verify(token, signingKey);
+
+    const email = payload.email;
+
+    const user = await this.userRepository.findOne({
+      where: {
+        email,
+      },
+    });
+
+    if (!user) {
+      throw new UnauthorizedException('User not found in database');
+    }
+
+    const accessToken = this.jwtService.sign({
+      sub: user.id,
+      email: user.email,
+      role: user.role,
+    });
+
+    return {
+      accessToken,
+      user,
     };
   }
 
